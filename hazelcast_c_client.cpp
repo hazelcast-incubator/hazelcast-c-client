@@ -11,11 +11,36 @@
 
 #include <hazelcast/client/HazelcastAll.h>
 
+#include <stdlib.h>
 #include <assert.h>
 #include <iostream>
 
 using namespace hazelcast::client;
 using namespace std;
+
+/* Internal */
+static void saveMessageInErrPtr(char **errptr, const char *message)
+{
+    assert(errptr != NULL);
+
+    if (message == NULL) {
+        *errptr = strdup("(HAZELCAST ERROR occurred, but message was empty)");
+    } else {
+        if (*errptr == NULL) {
+            *errptr = strdup(message);
+        } else {
+            free(*errptr);
+            *errptr = strdup(message);
+        }
+    }
+}
+
+static void saveUnknownErrorOccurredMessageInErrPtr(char **errptr)
+{
+    assert(errptr != NULL);
+
+    saveMessageInErrPtr(errptr, "Unknown failure occurred. Possible memory corruption.");
+}
 
 /* Exported types */
 extern "C" struct Hazelcast_ClientConfig_t { ClientConfig *config; };
@@ -32,59 +57,137 @@ extern "C" Hazelcast_ClientConfig_t* Hazelcast_ClientConfig_create()
 
 extern "C" void Hazelcast_ClientConfig_destroy(Hazelcast_ClientConfig_t *clientConfig)
 {
-    delete clientConfig->config;
-    delete clientConfig;
+    if (clientConfig != NULL && clientConfig->config != NULL) {
+        cout << "### deleting clientConfig->config\n";
+        delete clientConfig->config;
+    }
+
+    if (clientConfig != NULL) {
+        cout << "### deleting clientConfig\n";
+        delete clientConfig;
+    }
 }
 
 extern "C" void Hazelcast_ClientConfig_add_address(Hazelcast_ClientConfig_t *clientConfig, char *networkAddress, int port)
 {
+    assert(clientConfig != NULL);
+    assert(clientConfig->config != NULL);
+
+    assert(networkAddress != NULL);
+    assert(port >= 0 && port <= 65535);
+
     Address address(networkAddress, port);
     clientConfig->config->addAddress(address);
 }
 
 /* Hazelcast_Client */
-extern "C" Hazelcast_Client_t *Hazelcast_Client_create(Hazelcast_ClientConfig_t *clientConfig)
-{
-    Hazelcast_Client_t *client = new Hazelcast_Client_t;
-    client->client = new HazelcastClient(*(clientConfig->config));
+extern "C" Hazelcast_Client_t *Hazelcast_Client_create(
+    Hazelcast_ClientConfig_t *clientConfig,
+    char** errptr
+) {
+    assert(clientConfig != NULL);
+    assert(clientConfig->config != NULL);
 
-    return client;
+    try {
+        Hazelcast_Client_t *client = new Hazelcast_Client_t;
+        client->client = new HazelcastClient(*(clientConfig->config));
+
+        return client;
+    } catch(const std::runtime_error& re) {
+        saveMessageInErrPtr(errptr, re.what());
+    } catch(const std::exception& ex) {
+        saveMessageInErrPtr(errptr, ex.what());
+    } catch(...) {
+        saveUnknownErrorOccurredMessageInErrPtr(errptr);
+    }
+
+    return NULL;
 }
 
 extern "C" void Hazelcast_Client_destroy(Hazelcast_Client_t *client)
 {
-    delete client->client;
-    delete client;
+    if (client != NULL && client->client != NULL) {
+        cout << "### deleting client->client\n";
+        delete client->client;
+    }
+
+    if (client != NULL) {
+        cout << "### deleting client\n";
+        delete client;
+    }
 }
 
 /** Hazelcast_Map */
-extern "C" void Hazelcast_Map_put_int_int(Hazelcast_Client_t *hazelcastClient, const char *mapName, int key, int value)
-{
-    IMap<int, int> myMap = hazelcastClient->client->getMap<int, int>(mapName);
-    myMap.put(key, value);
+extern "C" void Hazelcast_Map_put_int_int(
+    Hazelcast_Client_t *hazelcastClient,
+    const char *mapName,
+    int key,
+    int value,
+    char** errptr
+) {
+    assert(hazelcastClient != NULL);
+    assert(hazelcastClient->client != NULL);
+
+    assert(mapName != NULL);
+
+    IMap<int, int> map = hazelcastClient->client->getMap<int, int>(mapName);
+    map.put(key, value);
 }
 
-extern "C" int Hazelcast_Map_get_int_int(Hazelcast_Client_t *hazelcastClient, const char *mapName, int key)
-{
-    IMap<int, int> myMap = hazelcastClient->client->getMap<int, int>(mapName);
-    boost::shared_ptr<int> value = myMap.get(key);
+extern "C" int Hazelcast_Map_get_int_int(
+    Hazelcast_Client_t *hazelcastClient,
+    const char *mapName,
+    int key,
+    char** errptr
+) {
+    assert(hazelcastClient != NULL);
+    assert(hazelcastClient->client != NULL);
+
+    assert(mapName != NULL);
+
+    IMap<int, int> map = hazelcastClient->client->getMap<int, int>(mapName);
+    boost::shared_ptr<int> value = map.get(key);
 
     return *(value.get());
 }
 
-extern "C" void Hazelcast_Map_put_int_string(Hazelcast_Client_t *hazelcastClient, const char *mapName, int key, const char *value)
-{
-    // @FIXME should it be string(mapName) and string(value) ?!
-    IMap<int, string> myMap = hazelcastClient->client->getMap<int, string>(mapName);
-    myMap.put(key, string(value));
+extern "C" void Hazelcast_Map_put_int_string(
+    Hazelcast_Client_t *hazelcastClient,
+    const char *mapName,
+    int key,
+    const char *value,
+    char** errptr
+) {
+    assert(hazelcastClient != NULL);
+    assert(hazelcastClient->client != NULL);
+
+    assert(mapName != NULL);
+
+    IMap<int, string> map = hazelcastClient->client->getMap<int, string>(mapName);
+    map.put(key, string(value));
 }
 
-extern "C" const char *Hazelcast_Map_get_int_string(Hazelcast_Client_t *hazelcastClient, const char *mapName, int key)
-{
-    // @FIXME should it be string(mapName) and string(value) ?!
-    IMap<int, string> myMap = hazelcastClient->client->getMap<int, string>(mapName);
-    boost::shared_ptr<string> value = myMap.get(key);
+extern "C" const char *Hazelcast_Map_get_int_string(
+    Hazelcast_Client_t *hazelcastClient,
+    const char *mapName,
+    int key,
+    char** errptr
+) {
+    assert(hazelcastClient != NULL);
+    assert(hazelcastClient->client != NULL);
+
+    assert(mapName != NULL);
+
+    IMap<int, string> map = hazelcastClient->client->getMap<int, string>(mapName);
+    boost::shared_ptr<string> value = map.get(key);
 
     string strValue = *(value.get());
+    // @FIXME can strValue be NULL?
     return strValue.c_str();
+}
+
+/* General functions */
+extern "C" void Hazelcast_free(void *ptr)
+{
+    free(ptr);
 }
