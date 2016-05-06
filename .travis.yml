@@ -20,6 +20,14 @@ matrix:
 before_install:
   - sudo apt-get update -qq
 
+addons:
+  apt:
+    sources:
+      - george-edison55-precise-backports # cmake 3.2.3 / doxygen 1.8.3
+    packages:
+      - cmake
+      - cmake-data
+
 script:
    - git clone --depth 1 --branch v3.6.2 https://github.com/hazelcast/hazelcast-cpp-client.git
    - (cd hazelcast-cpp-client && mkdir build && cd build && cmake .. -DHZ_LIB_TYPE=STATIC -DHZ_BIT=64 -DCMAKE_BUILD_TYPE=Release)
