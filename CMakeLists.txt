@@ -2,7 +2,6 @@ project(HazelcastCClient)
 
 cmake_minimum_required(VERSION 2.8)
 
-set(HAZELCAST_CPP_CLIENT_HOME $HAZELCAST_CPP_CLIENT_HOME)
 MESSAGE("HAZELCAST_CPP_CLIENT_HOME: " ${HAZELCAST_CPP_CLIENT_HOME})
 
 include_directories("${HAZELCAST_CPP_CLIENT_HOME}/external/include")
