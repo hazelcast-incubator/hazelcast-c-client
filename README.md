@@ -2,7 +2,7 @@
 
 This is a C client for Hazelcast, which wraps the official Hazelcast C++ client, with the aim to provide an low-level but easy to use and safe C API.
 
-C API is supposed to be somewhat similiar C bindings of [leveldb](https://github.com/google/leveldb/blob/master/include/leveldb/c.h]).
+C API is supposed to be somewhat similiar C bindings of [leveldb](https://github.com/google/leveldb/blob/master/include/leveldb/c.h).
 
 The contract is:
 
