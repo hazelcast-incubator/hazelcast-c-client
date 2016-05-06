@@ -29,7 +29,7 @@ extern Hazelcast_Client_t *Hazelcast_Client_create(
 extern void Hazelcast_Client_destroy(Hazelcast_Client_t *client);
 
 /* Map */
-extern void Hazelcast_Map_put_int_int(
+extern int Hazelcast_Map_put_int_int(
     Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     int key,
@@ -41,10 +41,11 @@ extern int Hazelcast_Map_get_int_int(
     Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     int key,
+    int *value,
     char** errptr
 );
 
-extern void Hazelcast_Map_put_int_string(
+extern int Hazelcast_Map_put_int_string(
     Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     int key,
@@ -52,10 +53,11 @@ extern void Hazelcast_Map_put_int_string(
     char** errptr
 );
 
-extern const char *Hazelcast_Map_get_int_string(
+extern int Hazelcast_Map_get_int_string(
     Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     int key,
+    char **value,
     char** errptr
 );
 
