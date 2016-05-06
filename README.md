@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/maxbeutel/hazelcast-c-client.svg?branch=master)](https://travis-ci.org/maxbeutel/hazelcast-c-client)
+
 # C Client bindings for Hazelcast
 
 This is a C client for Hazelcast, which wraps the official Hazelcast C++ client, with the aim to provide an low-level but easy to use and safe C API.
