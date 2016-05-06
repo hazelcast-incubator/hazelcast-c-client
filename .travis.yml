@@ -1,0 +1,28 @@
+# Mostly stolen from https://github.com/genbattle/dkm/blob/9c893efb556516f4b121a6201b66e000f838dd59/.travis.yml
+
+# Use new trusty images, should yield newer compilers and packages
+sudo: required
+dist: precise
+language: cpp
+
+matrix:
+  include:
+    - compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
+          packages:
+            - clang-3.7
+      env: COMPILER=clang++-3.7
+
+before_install:
+  - sudo apt-get update -qq
+
+script:
+   - git clone --depth 1 --branch v3.6.2 git@github.com:hazelcast/hazelcast-cpp-client.git
+   - (cd hazelcast-cpp-client && mkdir build && cd build && cmake .. -DHZ_LIB_TYPE=STATIC -DHZ_BIT=64 -DCMAKE_BUILD_TYPE=Release)
+#  - mkdir build
+#  - cd build
+#  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
