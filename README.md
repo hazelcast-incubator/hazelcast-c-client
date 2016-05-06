@@ -59,11 +59,11 @@ WARNING: C client is still early stage and therefore super unstable and most lik
             free(stringValue);
         }
 
-        cleanup:
-            Hazelcast_Client_destroy(client);
-            Hazelcast_ClientConfig_destroy(clientConfig);
+    cleanup:
+        Hazelcast_Client_destroy(client);
+        Hazelcast_ClientConfig_destroy(clientConfig);
 
-            Hazelcast_free(err); err = NULL;
+        Hazelcast_free(err); err = NULL;
 
-            return 0;
-        }
+        return 0;
+    }
