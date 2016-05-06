@@ -21,8 +21,9 @@ extern void Hazelcast_ClientConfig_add_address(
 );
 
 /* Client operations */
-extern Hazelcast_Client_t *Hazelcast_Client_create(
+extern int Hazelcast_Client_create(
     Hazelcast_ClientConfig_t *clientConfig,
+    Hazelcast_Client_t **client,
     char** errptr
 );
 

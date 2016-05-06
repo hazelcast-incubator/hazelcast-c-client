@@ -100,18 +100,23 @@ extern "C" void Hazelcast_ClientConfig_add_address(Hazelcast_ClientConfig_t *cli
 }
 
 /* Hazelcast_Client */
-extern "C" Hazelcast_Client_t *Hazelcast_Client_create(
+extern "C" int Hazelcast_Client_create(
     Hazelcast_ClientConfig_t *clientConfig,
+    Hazelcast_Client_t **client,
     char** errptr
 ) {
     assert(clientConfig != NULL);
     assert(clientConfig->config != NULL);
 
-    try {
-        Hazelcast_Client_t *client = new Hazelcast_Client_t;
-        client->client = new HazelcastClient(*(clientConfig->config));
+    assert(client != NULL);
 
-        return client;
+    try {
+        Hazelcast_Client_t *clientInstance = new Hazelcast_Client_t;
+        clientInstance->client = new HazelcastClient(*(clientConfig->config));
+
+        *client = clientInstance;
+
+        return 0;
     } catch(const std::runtime_error& re) {
         saveMessageInErrPtr(errptr, re.what());
     } catch(const std::exception& ex) {
@@ -120,7 +125,7 @@ extern "C" Hazelcast_Client_t *Hazelcast_Client_create(
         saveUnknownErrorOccurredMessageInErrPtr(errptr);
     }
 
-    return NULL;
+    return 1;
 }
 
 extern "C" void Hazelcast_Client_destroy(Hazelcast_Client_t *client)
