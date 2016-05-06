@@ -21,7 +21,7 @@ before_install:
   - sudo apt-get update -qq
 
 script:
-   - git clone --depth 1 --branch v3.6.2 git@github.com:hazelcast/hazelcast-cpp-client.git
+   - git clone --depth 1 --branch v3.6.2 https://github.com/hazelcast/hazelcast-cpp-client.git
    - (cd hazelcast-cpp-client && mkdir build && cd build && cmake .. -DHZ_LIB_TYPE=STATIC -DHZ_BIT=64 -DCMAKE_BUILD_TYPE=Release)
 #  - mkdir build
 #  - cd build
