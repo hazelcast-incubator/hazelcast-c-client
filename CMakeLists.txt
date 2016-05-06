@@ -22,6 +22,7 @@ add_executable(hazelcastCClientTest ${testSources})
 
 # @TODO create env variable for hazelcast lib?
 #HazelcastClient3.7-SNAPSHOT_64.a
+target_link_libraries(hazelcastCClient pthread)
 target_link_libraries(hazelcastCClient ${HAZELCAST_CPP_CLIENT_LIB})
 
 target_link_libraries(hazelcastCClientTest hazelcastCClient)
