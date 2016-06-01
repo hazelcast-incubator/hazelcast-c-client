@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <stddef.h>
 
 #ifndef _hazelcast_c_client_h
 #define _hazelcast_c_client_h
@@ -21,7 +21,7 @@ extern Hazelcast_Data_t *Hazelcast_Serialization_stringToData(
     size_t len
 );
 
-extern const char *Hazelcast_Serialization_dataToString(
+extern char *Hazelcast_Serialization_dataToString(
     const Hazelcast_Client_t *client,
     const Hazelcast_Data_t *data
 );
@@ -51,7 +51,7 @@ extern void Hazelcast_ClientConfig_add_address(
 /* Client */
 extern Hazelcast_Client_t *Hazelcast_Client_create(
     Hazelcast_ClientConfig_t *clientConfig,
-    char **out_errptr
+    char **errPtr
 );
 
 extern void Hazelcast_Client_destroy(Hazelcast_Client_t *client);
@@ -66,34 +66,34 @@ extern void Hazelcast_Map_set(
     const Hazelcast_Data_t *key,
     const Hazelcast_Data_t *value,
     long ttl,
-    char** out_errptr
+    char** errPtr
 );
 
-extern const Hazelcast_Data_t *Hazelcast_Map_get(
+extern Hazelcast_Data_t *Hazelcast_Map_get(
     const Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     const Hazelcast_Data_t *key,
-    char **out_errptr
+    char **errPtr
 );
 
 extern int Hazelcast_Map_containsKey(
     const Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     const Hazelcast_Data_t *key,
-    char **out_errptr
+    char **errPtr
 );
 
 extern void Hazelcast_Map_delete(
     const Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     const Hazelcast_Data_t *key,
-    char **out_errptr
+    char **errPtr
 );
 
 extern int Hazelcast_Map_size(
     const Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
-    char **out_errptr
+    char **errPtr
 );
 
 /* API functions/Helper */

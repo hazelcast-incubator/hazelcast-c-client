@@ -7,6 +7,8 @@
 // https://github.com/google/leveldb/blob/7306ef856a91e462a73ff1832c1fa8771008ba36/db/c.cc
 //
 
+#include <string.h>
+
 #include <hazelcast_c_client.h>
 #include <hazelcast/client/HazelcastAll.h>
 
@@ -16,11 +18,10 @@ using namespace hazelcast::client::proxy;
 using namespace hazelcast::client::spi;
 using namespace hazelcast::client::serialization::pimpl;
 
-
-class MyIMapImpl : protected IMapImpl
+class RawDataIMapImpl : protected IMapImpl
 {
 public:
-    MyIMapImpl(const std::string &instanceName, spi::ClientContext *context)
+    RawDataIMapImpl(const std::string &instanceName, spi::ClientContext *context)
             : IMapImpl(instanceName, context) {};
 
     using IMapImpl::set;
@@ -31,27 +32,27 @@ public:
 };
 
 /* Internal */
-static void saveMessageInErrPtr(char **out_errptr, const char *message)
+static void saveMessageInErrPtr(char **errPtr, const char *message)
 {
-    assert(out_errptr != NULL);
+    assert(errPtr != NULL);
 
     if (message == NULL) {
-        *out_errptr = strdup("(HAZELCAST ERROR occurred, but message was empty)");
+        *errPtr = strdup("(HAZELCAST ERROR occurred, but message was empty)");
     } else {
-        if (*out_errptr == NULL) {
-            *out_errptr = strdup(message);
+        if (*errPtr == NULL) {
+            *errPtr = strdup(message);
         } else {
-            free(*out_errptr);
-            *out_errptr = strdup(message);
+            free(*errPtr);
+            *errPtr = strdup(message);
         }
     }
 }
 
-static void saveUnknownErrorOccurredMessageInErrPtr(char **out_errptr)
+static void saveUnknownErrorOccurredMessageInErrPtr(char **errPtr)
 {
-    assert(out_errptr != NULL);
+    assert(errPtr != NULL);
 
-    saveMessageInErrPtr(out_errptr, "Unknown failure occurred. Possible memory corruption.");
+    saveMessageInErrPtr(errPtr, "Unknown failure occurred. Possible memory corruption.");
 }
 
 /* Exported types */
@@ -95,7 +96,7 @@ extern "C" Hazelcast_Data_t *Hazelcast_Serialization_stringToData(
     return data;
 }
 
-extern "C" const char *Hazelcast_Serialization_dataToString(
+extern "C" char *Hazelcast_Serialization_dataToString(
     const Hazelcast_Client_t *client,
     const Hazelcast_Data_t *data
 )
@@ -112,7 +113,7 @@ extern "C" const char *Hazelcast_Serialization_dataToString(
     //assert(stringValue != NULL);
 
     if (stringValue != NULL) {
-        return stringValue->c_str();
+        return strdup(stringValue->c_str());
     }
 
     return NULL;
@@ -130,7 +131,6 @@ extern "C" Hazelcast_Data_t *Hazelcast_Serialization_intToData(
     Data hazelcastData = client->context->getSerializationService().toData(&intValue);
 
     Hazelcast_Data_t *data = new Hazelcast_Data_t();
-    // @TODO is a double allocation happening because new Hazelcast_Data_t already allocates Data as part of the struct?
     data->data = hazelcastData;
 
     return data;
@@ -150,7 +150,6 @@ extern "C" int Hazelcast_Serialization_dataToInt(
     std::auto_ptr<int> intPtr = client->context->getSerializationService().toObject<int>(data->data);
     int *intValue = intPtr.get();
 
-    // @TODO free?
     if (intValue != NULL) {
         return *intValue;
     }
@@ -161,7 +160,6 @@ extern "C" int Hazelcast_Serialization_dataToInt(
 extern "C" void Hazelcast_Data_destroy(Hazelcast_Data_t *data)
 {
     if (data != NULL) {
-        // @TODO is this enough to free all memory?
         delete data;
     }
 }
@@ -205,7 +203,7 @@ extern "C" void Hazelcast_ClientConfig_add_address(
 /* Client */
 extern "C" Hazelcast_Client_t *Hazelcast_Client_create(
     Hazelcast_ClientConfig_t *clientConfig,
-    char **out_errptr
+    char **errPtr
 )
 {
     assert(clientConfig != NULL);
@@ -218,11 +216,11 @@ extern "C" Hazelcast_Client_t *Hazelcast_Client_create(
 
         return client;
     } catch(const std::runtime_error& re) {
-        saveMessageInErrPtr(out_errptr, re.what());
+        saveMessageInErrPtr(errPtr, re.what());
     } catch(const std::exception& ex) {
-        saveMessageInErrPtr(out_errptr, ex.what());
+        saveMessageInErrPtr(errPtr, ex.what());
     } catch(...) {
-        saveUnknownErrorOccurredMessageInErrPtr(out_errptr);
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
     }
 
     return NULL;
@@ -250,7 +248,7 @@ extern void Hazelcast_Map_set(
     const Hazelcast_Data_t *key,
     const Hazelcast_Data_t *value,
     long ttl,
-    char** out_errptr
+    char** errPtr
 )
 {
     assert(hazelcastClient != NULL);
@@ -266,28 +264,52 @@ extern void Hazelcast_Map_set(
 //  assert(value->data != NULL);
 
     try {
-        MyIMapImpl mapImpl(mapName, hazelcastClient->context);
+        RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
         mapImpl.set(key->data, value->data, ttl);
     } catch(const std::runtime_error& re) {
-        saveMessageInErrPtr(out_errptr, re.what());
+        saveMessageInErrPtr(errPtr, re.what());
     } catch(const std::exception& ex) {
-        saveMessageInErrPtr(out_errptr, ex.what());
+        saveMessageInErrPtr(errPtr, ex.what());
     } catch(...) {
-        saveUnknownErrorOccurredMessageInErrPtr(out_errptr);
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
     }
 }
 
-extern const Hazelcast_Data_t *Hazelcast_Map_get(
+extern Hazelcast_Data_t *Hazelcast_Map_get(
     const Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     const Hazelcast_Data_t *key,
-    char **out_errptr
+    char **errPtr
 )
 {
     assert(hazelcastClient != NULL);
     assert(hazelcastClient->client != NULL);
+    assert(hazelcastClient->context != NULL);
 
     assert(mapName != NULL);
+
+    assert(key != NULL);
+
+    try {
+        RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
+        std::auto_ptr<Data> dataPtr = mapImpl.getData(key->data);
+        Data *hazelcastData = dataPtr.get();
+
+        if (hazelcastData != NULL) {
+            Hazelcast_Data_t *data = new Hazelcast_Data_t();
+            data->data = *hazelcastData;
+
+            return data;
+        }
+
+        return NULL;
+    } catch(const std::runtime_error& re) {
+        saveMessageInErrPtr(errPtr, re.what());
+    } catch(const std::exception& ex) {
+        saveMessageInErrPtr(errPtr, ex.what());
+    } catch(...) {
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
+    }
 
     return NULL;
 }
@@ -296,7 +318,7 @@ extern int Hazelcast_Map_containsKey(
     const Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     const Hazelcast_Data_t *key,
-    char **out_errptr
+    char **errPtr
 )
 {
     assert(hazelcastClient != NULL);
@@ -309,7 +331,7 @@ extern int Hazelcast_Map_containsKey(
 //    assert(key->data != NULL);
 
     try {
-        MyIMapImpl mapImpl(mapName, hazelcastClient->context);
+        RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
 
         if (mapImpl.containsKey(key->data)) {
             return 1;
@@ -317,11 +339,11 @@ extern int Hazelcast_Map_containsKey(
             return 0;
         }
     } catch(const std::runtime_error& re) {
-        saveMessageInErrPtr(out_errptr, re.what());
+        saveMessageInErrPtr(errPtr, re.what());
     } catch(const std::exception& ex) {
-        saveMessageInErrPtr(out_errptr, ex.what());
+        saveMessageInErrPtr(errPtr, ex.what());
     } catch(...) {
-        saveUnknownErrorOccurredMessageInErrPtr(out_errptr);
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
     }
 
     return -1;
@@ -331,24 +353,54 @@ extern void Hazelcast_Map_delete(
     const Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     const Hazelcast_Data_t *key,
-    char **out_errptr
+    char **errPtr
 )
 {
+    assert(hazelcastClient != NULL);
+    assert(hazelcastClient->client != NULL);
+    assert(hazelcastClient->context != NULL);
 
+    assert(mapName != NULL);
+
+    assert(key != NULL);
+//    assert(key->data != NULL);
+
+    try {
+        RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
+        mapImpl.deleteEntry(key->data);
+    } catch(const std::runtime_error& re) {
+        saveMessageInErrPtr(errPtr, re.what());
+    } catch(const std::exception& ex) {
+        saveMessageInErrPtr(errPtr, ex.what());
+    } catch(...) {
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
+    }
 }
 
 extern int Hazelcast_Map_size(
     const Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
-    char **out_errptr
+    char **errPtr
 )
 {
     assert(hazelcastClient != NULL);
     assert(hazelcastClient->client != NULL);
+    assert(hazelcastClient->context != NULL);
 
     assert(mapName != NULL);
 
-    return 0;
+    try {
+        RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
+        return mapImpl.size();
+    } catch(const std::runtime_error& re) {
+        saveMessageInErrPtr(errPtr, re.what());
+    } catch(const std::exception& ex) {
+        saveMessageInErrPtr(errPtr, ex.what());
+    } catch(...) {
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
+    }
+
+    return -1;
 }
 
 /* API functions */
