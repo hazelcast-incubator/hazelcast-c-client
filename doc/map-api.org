@@ -1,0 +1,55 @@
+            bool containsKey(const K &key)
+            bool containsValue(const V &value)
+            boost::shared_ptr<V> get(const K &key)
+            boost::shared_ptr<V> put(const K &key, const V &value)
+            boost::shared_ptr<V> remove(const K &key)
+            bool remove(const K &key, const V &value)
+            void deleteEntry(const K &key)
+            void flush()
+            bool tryRemove(const K &key, long timeoutInMillis)
+            bool tryPut(const K &key, const V &value, long timeoutInMillis)
+            boost::shared_ptr<V> put(const K &key, const V &value, long ttlInMillis)
+            void putTransient(const K &key, const V &value, long ttlInMillis)
+            boost::shared_ptr<V> putIfAbsent(const K &key, const V &value)
+            boost::shared_ptr<V> putIfAbsent(const K &key, const V &value, long ttlInMillis)
+            bool replace(const K &key, const V &oldValue, const V &newValue)
+            boost::shared_ptr<V> replace(const K &key, const V &value)
+            void set(const K &key, const V &value, long ttl)
+            void lock(const K &key)
+            void lock(const K &key, long leaseTime)
+            bool isLocked(const K &key)
+            bool tryLock(const K &key)
+            bool tryLock(const K &key, long timeInMillis)
+            void unlock(const K &key)
+            void forceUnlock(const K &key)
+
+            std::string addInterceptor(MapInterceptor &interceptor)
+            void removeInterceptor(const std::string &id)
+            std::string addEntryListener(EntryListener<K, V> &listener, bool includeValue)
+            bool removeEntryListener(const std::string &registrationId)
+            EntryView<K, V> getEntryView(const K &key)
+
+            bool evict(const K &key)
+            void evictAll()
+            std::map<K, V> getAll(const std::set<K> &keys)
+            std::vector<K> keySet()
+            std::vector<V> values()
+
+            void addIndex(const std::string &attribute, bool ordered)
+                proxy::IMapImpl::addIndex(attribute, ordered);
+            }
+
+            template<typename ResultType, typename EntryProcessor>
+            boost::shared_ptr<ResultType> executeOnKey(const K &key, EntryProcessor &entryProcessor)
+                std::auto_ptr<serialization::pimpl::Data> resultData = proxy::IMapImpl::executeOnKeyData<K, EntryProcessor>(key, entryProcessor);
+
+                return boost::shared_ptr<ResultType>(toObject<ResultType>(resultData));
+            }
+
+            void set(const K &key, const V &value)
+            int size()
+            bool isEmpty()
+
+            void putAll(const std::map<K, V> &entries)
+
+            void clear()
