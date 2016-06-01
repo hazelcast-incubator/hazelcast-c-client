@@ -1,18 +1,12 @@
 <project name="Hazelcast C client" default="build" basedir=".">
-    <property name="compiler" value="clang" />
+    <property name="compiler" value="clang++" />
 
-    <target name="install-dependencies">
+    <target name="build-external-dependencies">
+        <!-- download and build Hazelcast C++ client -->
         <exec executable="git" failonerror="true">
             <arg line="clone --depth 1 --branch v3.6.2 https://github.com/hazelcast/hazelcast-cpp-client.git"/>
         </exec>
 
-        <exec executable="git" failonerror="true">
-            <arg line="clone --depth 1 --branch release-1.7.0 https://github.com/google/googletest.git"/>
-        </exec>
-    </target>
-
-    <target name="build" depends="install-dependencies, clean">
-        <!-- build Hazelcast C++ client -->
         <mkdir dir="hazelcast-cpp-client/build"/>
 
         <exec executable="cmake" failonerror="true" dir="hazelcast-cpp-client/build">
@@ -21,15 +15,31 @@
 
         <exec executable="make" failonerror="true" dir="hazelcast-cpp-client/build" />
 
-        <!-- build Hazelcast C client -->
+        <!-- download and build gtest library -->
+        <exec executable="git" failonerror="true">
+            <arg line="clone --depth 1 --branch master https://github.com/google/googletest.git"/>
+        </exec>
+
+        <mkdir dir="googletest/build"/>
+
+        <exec executable="cmake" failonerror="true" dir="googletest/build">
+            <arg line=".." />
+        </exec>
+
+        <exec executable="make" failonerror="true" dir="googletest/build" />
+    </target>
+
+    <target name="build-c-client">
         <mkdir dir="build"/>
 
-        <exec executable="cmake" failonerror="true" dir="hazelcast-cpp-client/build">
-            <arg line="-DGTEST_HOME=${basedir}/googletest/ -DHAZELCAST_CPP_CLIENT_LIB=HazelcastClient3.6.2_64.a -DHAZELCAST_CPP_CLIENT_HOME=${basedir}/hazelcast-cpp-client/ -DCMAKE_CXX_COMPILER=${compiler} .." />
+        <exec executable="cmake" failonerror="true" dir="build">
+            <arg line="-DGTEST_HOME=${basedir}/googletest/ -DHAZELCAST_CPP_CLIENT_LIB=hazelcastClient3.6.2_64.a -DHAZELCAST_CPP_CLIENT_HOME=${basedir}/hazelcast-cpp-client/ -DCMAKE_CXX_COMPILER=${compiler} .." />
         </exec>
 
         <exec executable="make" failonerror="true" dir="build" />
     </target>
+
+    <target name="build" depends="clean, build-external-dependencies, build-c-client"/>
 
     <target name="tests">
 

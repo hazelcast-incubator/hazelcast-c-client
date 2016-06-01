@@ -148,3 +148,5 @@ install_manifest.txt
 ## project specific
 
 build/
+googletest/
+hazelcast-cpp-client/
