@@ -1,5 +1,9 @@
 <project name="Hazelcast C client" default="build" basedir=".">
-    <property name="compiler" value="clang++" />
+    <!-- use CXX or default to clang++ for compilation -->
+    <property environment="env"/>
+    <condition property="compiler" value="${env.CXX}" else="clang++">
+        <isset property="env.CXX" />
+    </condition>
 
     <target name="build-external-dependencies">
         <!-- download and build Hazelcast C++ client -->
