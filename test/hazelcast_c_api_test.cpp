@@ -1,3 +1,15 @@
+#include <stdio.h>
+
+#include "gtest/gtest.h"
+
+
+GTEST_API_ int main(int argc, char **argv) {
+    printf("Running unit tests\n");
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
+
+/*
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -117,3 +129,4 @@ cleanup:
 
     return 0;
 }
+*/
