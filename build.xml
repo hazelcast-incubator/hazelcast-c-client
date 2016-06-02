@@ -7,37 +7,37 @@
 
     <target name="build-external-dependencies">
         <!-- download and build Hazelcast C++ client -->
-        <exec executable="git" failonerror="true">
+        <exec executable="git" failonerror="true" dir="lib">
             <arg line="clone --depth 1 --branch v3.6.2 https://github.com/hazelcast/hazelcast-cpp-client.git"/>
         </exec>
 
-        <mkdir dir="hazelcast-cpp-client/build"/>
+        <mkdir dir="lib/hazelcast-cpp-client/build"/>
 
-        <exec executable="cmake" failonerror="true" dir="hazelcast-cpp-client/build">
+        <exec executable="cmake" failonerror="true" dir="lib/hazelcast-cpp-client/build">
             <arg line=".. -DHZ_LIB_TYPE=STATIC -DHZ_BIT=64 -DCMAKE_BUILD_TYPE=Release" />
         </exec>
 
-        <exec executable="make" failonerror="true" dir="hazelcast-cpp-client/build" />
+        <exec executable="make" failonerror="true" dir="lib/hazelcast-cpp-client/build" />
 
         <!-- download and build gtest library -->
-        <exec executable="git" failonerror="true">
+        <exec executable="git" failonerror="true" dir="lib">
             <arg line="clone --depth 1 --branch master https://github.com/google/googletest.git"/>
         </exec>
 
-        <mkdir dir="googletest/build"/>
+        <mkdir dir="lib/googletest/build"/>
 
-        <exec executable="cmake" failonerror="true" dir="googletest/build">
+        <exec executable="cmake" failonerror="true" dir="lib/googletest/build">
             <arg line=".." />
         </exec>
 
-        <exec executable="make" failonerror="true" dir="googletest/build" />
+        <exec executable="make" failonerror="true" dir="lib/googletest/build" />
     </target>
 
     <target name="build-c-client">
         <mkdir dir="build"/>
 
         <exec executable="cmake" failonerror="true" dir="build">
-            <arg line="-DGTEST_HOME=${basedir}/googletest/ -DHAZELCAST_CPP_CLIENT_LIB=HazelcastClient3.6.2_64.a -DHAZELCAST_CPP_CLIENT_HOME=${basedir}/hazelcast-cpp-client/ -DCMAKE_CXX_COMPILER=${compiler} .." />
+            <arg line="-DGTEST_HOME=${basedir}/lib/googletest/ -DHAZELCAST_CPP_CLIENT_LIB=HazelcastClient3.6.2_64.a -DHAZELCAST_CPP_CLIENT_HOME=${basedir}/lib/hazelcast-cpp-client/ -DCMAKE_CXX_COMPILER=${compiler} .." />
         </exec>
 
         <exec executable="make" failonerror="true" dir="build" />
