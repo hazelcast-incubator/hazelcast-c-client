@@ -34,15 +34,13 @@
     </target>
 
     <target name="build-c-client">
-        <!--
         <mkdir dir="build"/>
 
         <exec executable="cmake" failonerror="true" dir="build">
-            <arg line="-DGTEST_HOME=${basedir}/googletest/ -DHAZELCAST_CPP_CLIENT_LIB=hazelcastClient3.6.2_64.a -DHAZELCAST_CPP_CLIENT_HOME=${basedir}/hazelcast-cpp-client/ -DCMAKE_CXX_COMPILER=${compiler} .." />
+            <arg line="-DGTEST_HOME=${basedir}/googletest/ -DHAZELCAST_CPP_CLIENT_LIB=HazelcastClient3.6.2_64.a -DHAZELCAST_CPP_CLIENT_HOME=${basedir}/hazelcast-cpp-client/ -DCMAKE_CXX_COMPILER=${compiler} .." />
         </exec>
 
         <exec executable="make" failonerror="true" dir="build" />
-        -->
     </target>
 
     <target name="build" depends="clean, build-external-dependencies, build-c-client"/>

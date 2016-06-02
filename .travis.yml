@@ -22,4 +22,3 @@ install:
 
 script:
   - ant -v
-  - ls -la hazelcast-cpp-client/build
