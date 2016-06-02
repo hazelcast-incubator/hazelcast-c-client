@@ -1,27 +1,23 @@
-# Mostly stolen from https://github.com/genbattle/dkm/blob/9c893efb556516f4b121a6201b66e000f838dd59/.travis.yml
-
-# Use new trusty images, should yield newer compilers and packages
-sudo: required
-dist: precise
+sudo: false
 language: cpp
 
-matrix:
-  include:
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-            - george-edison55-precise-backports # cmake 3.2.3 / doxygen 1.8.3
-          packages:
-            - clang-3.7
-            - cmake
-            - cmake-data
-      env: COMPILER=clang++-3.7
+compiler:
+  - gcc
+  - clang
 
-before_install:
-  - sudo apt-get update -qq
+install:
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
+      - clang
 
 script:
-   - ant -v -Dcompiler=$COMPILER
+  - cmake --version
+  - g++ -v
+  - clang -v
