@@ -9,9 +9,19 @@ extern "C" {
 
 /* Exported types */
 typedef unsigned char Hazelcast_byte_t;
+
 typedef struct Hazelcast_ClientConfig_t Hazelcast_ClientConfig_t;
+
 typedef struct Hazelcast_Client_t Hazelcast_Client_t;
+
 typedef struct Hazelcast_Data_t Hazelcast_Data_t;
+
+typedef enum {
+    HAZELCAST_LOG_LEVEL_SEVERE = 100,
+    HAZELCAST_LOG_LEVEL_WARNING = 90,
+    HAZELCAST_LOG_LEVEL_INFO = 50,
+    HAZELCAST_LOG_LEVEL_FINEST = 20,
+} HAZELCAST_LOG_LEVEL;
 
 /* Serialization */
 // string
@@ -32,7 +42,7 @@ extern Hazelcast_Data_t *Hazelcast_Serialization_intToData(
     int intValue
 );
 
-extern int Hazelcast_Serialization_dataToInt(
+extern int *Hazelcast_Serialization_dataToInt(
     const Hazelcast_Client_t *client,
     const Hazelcast_Data_t *data
 );
@@ -41,11 +51,18 @@ extern void Hazelcast_Data_destroy(Hazelcast_Data_t *data);
 
 /* Configuration */
 extern Hazelcast_ClientConfig_t* Hazelcast_ClientConfig_create();
+
 extern void Hazelcast_ClientConfig_destroy(Hazelcast_ClientConfig_t *clientConfig);
-extern void Hazelcast_ClientConfig_add_address(
+
+extern void Hazelcast_ClientConfig_addAddress(
     const Hazelcast_ClientConfig_t *clientConfig,
     const char *networkAddress,
     int port
+);
+
+extern void Hazelcast_ClientConfig_setLogLevel(
+    const Hazelcast_ClientConfig_t *clientConfig,
+    HAZELCAST_LOG_LEVEL logLevel
 );
 
 /* Client */

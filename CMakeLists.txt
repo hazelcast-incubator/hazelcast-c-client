@@ -22,7 +22,7 @@ link_directories("${HAZELCAST_CPP_CLIENT_HOME}/build")
 link_directories("${GTEST_HOME}/build/googlemock/gtest")
 link_directories("${GTEST_HOME}/build/googlemock")
 
-# build
+# build settings
 enable_testing()
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -41,8 +41,8 @@ add_library(hazelcastCClient ${libSources})
 target_link_libraries(hazelcastCClient pthread)
 target_link_libraries(hazelcastCClient ${HAZELCAST_CPP_CLIENT_LIB})
 
-# API test
-set(testSources test/hazelcast_c_api_test.c)
+# tests
+set(testSources test/hazelcast_c_api_test.cpp)
 
 add_executable(hazelcast_c_api_test ${testSources})
 add_test(hazelcast_c_api_test hazelcast_c_api_test)

@@ -45,23 +45,43 @@
 
     <target name="build" depends="clean, build-external-dependencies, build-c-client"/>
 
-    <target name="tests">
-
+    <!-- tests -->
+    <target name="tests" depends="build-c-client">
+        <exec executable="make" failonerror="true" dir="build">
+            <arg line="test ARGS='-V'"/>
+        </exec>
     </target>
 
-    <target name="unpack-hazelcast-server">
+    <target name="start-hazelcast-server">
+        <exec executable="tar" failonerror="true" dir="test/fixtures/hazelcast-server">
+            <arg line="-xzf hazelcast-3.6.2.tar.gz"/>
+        </exec>
 
+        <exec executable="sh" failonerror="false" dir="test/fixtures/hazelcast-server/hazelcast-3.6.2/bin">
+            <arg line="stop.sh"/>
+        </exec>
+
+        <exec executable="sh" failonerror="true" dir="test/fixtures/hazelcast-server/hazelcast-3.6.2/bin">
+            <arg line="start.sh"/>
+        </exec>
+
+        <!-- wait until server is ready -->
+        <sleep seconds="10"/>
     </target>
 
+    <!-- cleanup -->
     <target name="clean">
-        <delete dir="hazelcast-cpp-client" />
-
-        <delete dir="googletest" />
-
         <delete dir="build" />
 
         <delete>
-            <fileset dir="test/hazelcast-server">
+            <fileset dir="lib">
+                <include name="**/*"/>
+                <exclude name="**/.gitkeep"/>
+            </fileset>
+        </delete>
+
+        <delete>
+            <fileset dir="test/fixtures/hazelcast-server">
                 <include name="**/*"/>
                 <exclude name="**/*.tar.gz"/>
             </fileset>

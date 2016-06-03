@@ -104,13 +104,12 @@ extern "C" char *Hazelcast_Serialization_dataToString(
     assert(client != NULL);
     assert(client->context != NULL);
 
-    assert(data != NULL);
+    if (data == NULL) {
+        return NULL;
+    }
 
-    // @TODO is it actually OK for this to be NULL, e. g. if a key is not found?
     std::auto_ptr<std::string> stringPtr = client->context->getSerializationService().toObject<std::string>(data->data);
     std::string *stringValue = stringPtr.get();
-
-    //assert(stringValue != NULL);
 
     if (stringValue != NULL) {
         return strdup(stringValue->c_str());
@@ -136,7 +135,7 @@ extern "C" Hazelcast_Data_t *Hazelcast_Serialization_intToData(
     return data;
 }
 
-extern "C" int Hazelcast_Serialization_dataToInt(
+extern "C" int *Hazelcast_Serialization_dataToInt(
     const Hazelcast_Client_t *client,
     const Hazelcast_Data_t *data
 )
@@ -144,17 +143,18 @@ extern "C" int Hazelcast_Serialization_dataToInt(
     assert(client != NULL);
     assert(client->context != NULL);
 
-    assert(data != NULL);
-    // @TODO assert that data->data is not NULL?
+    if (data == NULL) {
+        return NULL;
+    }
 
     std::auto_ptr<int> intPtr = client->context->getSerializationService().toObject<int>(data->data);
     int *intValue = intPtr.get();
 
     if (intValue != NULL) {
-        return *intValue;
+        return intValue;
     }
 
-    return 0;
+    return NULL;
 }
 
 extern "C" void Hazelcast_Data_destroy(Hazelcast_Data_t *data)
@@ -184,7 +184,7 @@ extern "C" void Hazelcast_ClientConfig_destroy(Hazelcast_ClientConfig_t *clientC
     }
 }
 
-extern "C" void Hazelcast_ClientConfig_add_address(
+extern "C" void Hazelcast_ClientConfig_addAddress(
     const Hazelcast_ClientConfig_t *clientConfig,
     const char *networkAddress,
     int port
@@ -198,6 +198,40 @@ extern "C" void Hazelcast_ClientConfig_add_address(
 
     Address address(networkAddress, port);
     clientConfig->config->addAddress(address);
+}
+
+extern "C" void Hazelcast_ClientConfig_setLogLevel(
+    const Hazelcast_ClientConfig_t *clientConfig,
+    HAZELCAST_LOG_LEVEL logLevel
+)
+{
+    assert(clientConfig != NULL);
+    assert(clientConfig->config != NULL);
+
+    switch (logLevel) {
+        case HAZELCAST_LOG_LEVEL_SEVERE:
+            clientConfig->config->setLogLevel(SEVERE);
+
+            break;
+
+        case HAZELCAST_LOG_LEVEL_WARNING:
+            clientConfig->config->setLogLevel(WARNING);
+
+            break;
+
+        case HAZELCAST_LOG_LEVEL_INFO:
+            clientConfig->config->setLogLevel(INFO);
+
+            break;
+
+        case HAZELCAST_LOG_LEVEL_FINEST:
+            clientConfig->config->setLogLevel(FINEST);
+
+            break;
+
+        default:
+            break;
+    }
 }
 
 /* Client */
@@ -258,10 +292,7 @@ extern void Hazelcast_Map_set(
     assert(mapName != NULL);
 
     assert(key != NULL);
-//    assert(key->data != NULL);
-
     assert(value != NULL);
-//  assert(value->data != NULL);
 
     try {
         RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
@@ -328,7 +359,6 @@ extern int Hazelcast_Map_containsKey(
     assert(mapName != NULL);
 
     assert(key != NULL);
-//    assert(key->data != NULL);
 
     try {
         RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
@@ -363,7 +393,6 @@ extern void Hazelcast_Map_delete(
     assert(mapName != NULL);
 
     assert(key != NULL);
-//    assert(key->data != NULL);
 
     try {
         RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);

@@ -148,4 +148,8 @@ install_manifest.txt
 ## project specific
 
 build/
-lib/
+
+lib/googletest
+lib/hazelcast-cpp-client
+
+test/fixtures/hazelcast-server/hazelcast-3.6.2/

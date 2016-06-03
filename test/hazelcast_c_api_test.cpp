@@ -1,25 +1,51 @@
-#include <stdio.h>
-
-#include "gtest/gtest.h"
-
-
-GTEST_API_ int main(int argc, char **argv) {
-    printf("Running unit tests\n");
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-
-/*
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include <assert.h>
 
 #include "hazelcast_c_client.h"
 
+#include "gtest/gtest.h"
+
+#define HAZELCAST_TEST_SERVER_HOST "127.0.0.1"
+#define HAZELCAST_TEST_SERVER_PORT 5701
+
 #define TEST_MAP_NAME "test-map"
 
-int main(void)
+TEST(CClientAPI, MapStringzKeyNotFound)
+{
+    char *errPtr = NULL;
+
+    // client setup
+    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create();
+    Hazelcast_ClientConfig_addAddress(clientConfig, HAZELCAST_TEST_SERVER_HOST, HAZELCAST_TEST_SERVER_PORT);
+    Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
+
+    Hazelcast_Client_t *client = Hazelcast_Client_create(clientConfig, &errPtr);
+    ASSERT_STREQ(errPtr, NULL) << "Client create failed.";
+
+    // key not contained
+    const char *unknownKey = "unknown key";
+    Hazelcast_Data_t *unknownKeyData = Hazelcast_Serialization_stringToData(
+        client,
+        unknownKey,
+        strlen(unknownKey)
+    );
+
+    int keyExists = Hazelcast_Map_containsKey(client, TEST_MAP_NAME, unknownKeyData, &errPtr);
+    ASSERT_STREQ(errPtr, NULL) << "Failed to check if key is contained in map.";
+    ASSERT_EQ(keyExists, 0) << "Key was not stored in map.";
+
+    Hazelcast_Data_t *nullData = Hazelcast_Map_get(client, TEST_MAP_NAME, unknownKeyData, &errPtr);
+    ASSERT_STREQ(errPtr, NULL) << "Failed to get NULL key from map.";
+    ASSERT_EQ(NULL, nullData) << "Key was not expected to be found in map.";
+
+    // cleanup
+    Hazelcast_Client_destroy(client);
+    Hazelcast_ClientConfig_destroy(clientConfig);
+
+    Hazelcast_resetError(errPtr);
+}
+
+TEST(CClientAPI, MapFunctionsWithStringData)
 {
     char *errPtr = NULL;
 
@@ -31,19 +57,13 @@ int main(void)
 
     Hazelcast_Data_t *storedData = NULL;
 
+    // client setup
     Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create();
-    assert(clientConfig != NULL);
-
-    Hazelcast_ClientConfig_add_address(clientConfig, "127.0.0.1", 5701);
+    Hazelcast_ClientConfig_addAddress(clientConfig, HAZELCAST_TEST_SERVER_HOST, HAZELCAST_TEST_SERVER_PORT);
+    Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
 
     Hazelcast_Client_t *client = Hazelcast_Client_create(clientConfig, &errPtr);
-    assert(client != NULL);
-
-    if (errPtr != NULL) {
-        printf("### ERR Client create failed: %s\n", errPtr);
-
-        goto cleanup;
-    }
+    ASSERT_STREQ(errPtr, NULL) << "Client create failed.";
 
     // serialize key and value into Data object
     keyData = Hazelcast_Serialization_stringToData(client, rawKey, strlen(rawKey));
@@ -51,73 +71,31 @@ int main(void)
 
     // save new key/value pair
     Hazelcast_Map_set(client, TEST_MAP_NAME, keyData, valueData, 0, &errPtr);
-
-    if (errPtr != NULL) {
-        printf("### ERR Failed to store key/value pair in map: %s\n", errPtr);
-
-        goto cleanup;
-    }
+    ASSERT_STREQ(errPtr, NULL) << "Failed to store key/value pair in map.";
 
     // check if key exists in map
-    if (Hazelcast_Map_containsKey(client, TEST_MAP_NAME, keyData, &errPtr) == 1) {
-        printf("### OK key was found in map.\n");
-    } else {
-        printf("### ERR key was not found in map.\n");
-    }
+    int keyExists = Hazelcast_Map_containsKey(client, TEST_MAP_NAME, keyData, &errPtr);
+    ASSERT_STREQ(errPtr, NULL) << "Failed to check if key is contained in map.";
+    ASSERT_EQ(keyExists, 1) << "Key was not stored in map.";
 
-    if (errPtr != NULL) {
-        printf("### ERR Failed to check if key is contained in map: %s\n", errPtr);
-
-        goto cleanup;
-    }
-
-    // get number of items in map
+    // check map size
     int mapSize = Hazelcast_Map_size(client, TEST_MAP_NAME, &errPtr);
+    ASSERT_GT(mapSize, 0) << "No values found in map.";
 
-    if (errPtr != NULL) {
-        printf("### ERR Failed to get map size.\n");
 
-        goto cleanup;
-    }
-
-    printf("### OK map contains %d items\n", mapSize);
-
-    // get key again
     storedData = Hazelcast_Map_get(client, TEST_MAP_NAME, keyData, &errPtr);
-
-    if (errPtr != NULL) {
-        printf("### ERR Failed to get data by key from map: %s\n", errPtr);
-
-        goto cleanup;
-    }
+    ASSERT_STREQ(errPtr, NULL) << "Failed to check if key is contained in map.";
 
     char *storedValue = Hazelcast_Serialization_dataToString(client, storedData);
+    ASSERT_STREQ(storedValue, rawValue) << "Expected value is not equal to stored value.";
 
-    printf("### OK got value again: '%s' %zu bytes long\n", storedValue, strlen(storedValue));
+    free(storedValue);
 
-    Hazelcast_free(storedValue);
-
-    // delete item
+    // remove key
     Hazelcast_Map_delete(client, TEST_MAP_NAME, keyData, &errPtr);
+    ASSERT_STREQ(errPtr, NULL) << "Failed to delete key from map.";
 
-    if (errPtr != NULL) {
-        printf("### ERR Failed to delete key from map: %s.\n", errPtr);
-
-        goto cleanup;
-    }
-
-    // get map size again
-    mapSize = Hazelcast_Map_size(client, TEST_MAP_NAME, &errPtr);
-
-    if (errPtr != NULL) {
-        printf("### ERR Failed to get map size.\n");
-
-        goto cleanup;
-    }
-
-    printf("### OK map contains %d items\n", mapSize);
-
-cleanup:
+    // cleanup
     Hazelcast_Data_destroy(keyData);
     Hazelcast_Data_destroy(valueData);
     Hazelcast_Data_destroy(storedData);
@@ -126,7 +104,10 @@ cleanup:
     Hazelcast_ClientConfig_destroy(clientConfig);
 
     Hazelcast_resetError(errPtr);
-
-    return 0;
 }
-*/
+
+GTEST_API_ int main(int argc, char **argv)
+{
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
