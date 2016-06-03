@@ -71,20 +71,11 @@
 
     <!-- cleanup -->
     <target name="clean">
-        <delete dir="build" />
+        <delete dir="build"/>
 
-        <delete>
-            <fileset dir="lib">
-                <include name="**/*"/>
-                <exclude name="**/.gitkeep"/>
-            </fileset>
-        </delete>
+        <delete dir="lib/googletest"/>
+        <delete dir="lib/hazelcast-cpp-client"/>
 
-        <delete>
-            <fileset dir="test/fixtures/hazelcast-server">
-                <include name="**/*"/>
-                <exclude name="**/*.tar.gz"/>
-            </fileset>
-        </delete>
+        <delete dir="test/fixtures/hazelcast-server/hazelcast-3.6.2"/>
     </target>
 </project>
