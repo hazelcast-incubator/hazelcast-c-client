@@ -22,7 +22,7 @@ install:
 
 script:
   - ant -v build
-  #- ant -v start-hazelcast-server
+  - ant -v start-hazelcast-server
   - ant -v codestyle
   #- ant -v tests
 
