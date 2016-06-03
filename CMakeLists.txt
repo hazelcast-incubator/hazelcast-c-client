@@ -41,13 +41,20 @@ add_library(hazelcastCClient ${libSources})
 target_link_libraries(hazelcastCClient pthread)
 target_link_libraries(hazelcastCClient ${HAZELCAST_CPP_CLIENT_LIB})
 
-# tests
-set(testSources test/hazelcast_c_api_test.cpp)
+# test - map API
+add_executable(hazelcast_map_api_test test/hazelcast_map_api_test.cpp)
+add_test(hazelcast_map_api_test hazelcast_map_api_test)
 
-add_executable(hazelcast_c_api_test ${testSources})
-add_test(hazelcast_c_api_test hazelcast_c_api_test)
+target_link_libraries(hazelcast_map_api_test hazelcastCClient)
+target_link_libraries(hazelcast_map_api_test pthread)
+target_link_libraries(hazelcast_map_api_test gmock)
+target_link_libraries(hazelcast_map_api_test gtest)
 
-target_link_libraries(hazelcast_c_api_test hazelcastCClient)
-target_link_libraries(hazelcast_c_api_test pthread)
-target_link_libraries(hazelcast_c_api_test gmock)
-target_link_libraries(hazelcast_c_api_test gtest)
+# test - serialization
+add_executable(hazelcast_serialization_test test/hazelcast_serialization_test.cpp)
+add_test(hazelcast_serialization_test hazelcast_serialization_test)
+
+target_link_libraries(hazelcast_serialization_test hazelcastCClient)
+target_link_libraries(hazelcast_serialization_test pthread)
+target_link_libraries(hazelcast_serialization_test gmock)
+target_link_libraries(hazelcast_serialization_test gtest)

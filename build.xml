@@ -31,6 +31,11 @@
         </exec>
 
         <exec executable="make" failonerror="true" dir="lib/googletest/build" />
+
+        <!-- download google styleguide -->
+        <exec executable="git" failonerror="true" dir="lib">
+            <arg line="clone --depth 1 https://github.com/google/styleguide.git"/>
+        </exec>
     </target>
 
     <target name="build-c-client">
@@ -45,11 +50,24 @@
 
     <target name="build" depends="clean, build-external-dependencies, build-c-client"/>
 
-    <!-- tests -->
+    <!-- tests/sanity -->
     <target name="tests" depends="build-c-client">
         <exec executable="make" failonerror="true" dir="build">
             <arg line="test ARGS='-V'"/>
         </exec>
+    </target>
+
+    <target name="codestyle">
+        <apply executable="lib/styleguide/cpplint/cpplint.py" failonerror="false" parallel="false" >
+            <arg line="--linelength=120 --filter=-runtime/int"/>
+            <srcfile/>
+
+            <fileset id="sources" dir="${basedir}">
+                <include name="include/*.h" />
+                <include name="src/*.cpp" />
+                <include name="test/*.cpp" />
+            </fileset>
+        </apply>
     </target>
 
     <target name="start-hazelcast-server">
@@ -74,6 +92,7 @@
         <delete dir="build"/>
 
         <delete dir="lib/googletest"/>
+        <delete dir="lib/styleguide"/>
         <delete dir="lib/hazelcast-cpp-client"/>
 
         <delete dir="test/fixtures/hazelcast-server/hazelcast-3.6.2"/>

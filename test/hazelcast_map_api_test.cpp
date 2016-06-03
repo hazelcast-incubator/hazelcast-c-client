@@ -1,7 +1,8 @@
-#include <stdlib.h>
-#include <string.h>
+// Copyright 2016, Max Beutel
 
-#include "hazelcast_c_client.h"
+#include <assert.h>
+
+#include "hazelcast_c_client/hazelcast_c_client.h"
 
 #include "gtest/gtest.h"
 
@@ -10,8 +11,7 @@
 
 #define TEST_MAP_NAME "test-map"
 
-TEST(CClientAPI, MapStringzKeyNotFound)
-{
+TEST(MapAPI, StringKeyNotFound) {
     char *errPtr = NULL;
 
     // client setup
@@ -20,15 +20,11 @@ TEST(CClientAPI, MapStringzKeyNotFound)
     Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
 
     Hazelcast_Client_t *client = Hazelcast_Client_create(clientConfig, &errPtr);
-    ASSERT_STREQ(errPtr, NULL) << "Client create failed.";
+    assert(client != NULL && "Client create failed.");
 
     // key not contained
     const char *unknownKey = "unknown key";
-    Hazelcast_Data_t *unknownKeyData = Hazelcast_Serialization_stringToData(
-        client,
-        unknownKey,
-        strlen(unknownKey)
-    );
+    Hazelcast_Data_t *unknownKeyData = Hazelcast_Serialization_stringToData(client, unknownKey, strlen(unknownKey));
 
     int keyExists = Hazelcast_Map_containsKey(client, TEST_MAP_NAME, unknownKeyData, &errPtr);
     ASSERT_STREQ(errPtr, NULL) << "Failed to check if key is contained in map.";
@@ -45,8 +41,7 @@ TEST(CClientAPI, MapStringzKeyNotFound)
     Hazelcast_resetError(errPtr);
 }
 
-TEST(CClientAPI, MapFunctionsWithStringData)
-{
+TEST(MapAPI, UseFunctionsWithStringData) {
     char *errPtr = NULL;
 
     const char *rawKey = "map_key";
@@ -63,7 +58,7 @@ TEST(CClientAPI, MapFunctionsWithStringData)
     Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
 
     Hazelcast_Client_t *client = Hazelcast_Client_create(clientConfig, &errPtr);
-    ASSERT_STREQ(errPtr, NULL) << "Client create failed.";
+    assert(client != NULL && "Client create failed.");
 
     // serialize key and value into Data object
     keyData = Hazelcast_Serialization_stringToData(client, rawKey, strlen(rawKey));
@@ -106,8 +101,7 @@ TEST(CClientAPI, MapFunctionsWithStringData)
     Hazelcast_resetError(errPtr);
 }
 
-GTEST_API_ int main(int argc, char **argv)
-{
+GTEST_API_ int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

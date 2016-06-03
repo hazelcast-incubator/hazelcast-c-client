@@ -1,3 +1,5 @@
+// Copyright 2016, Max Beutel
+
 //
 // export hazelcast methods
 //
@@ -7,22 +9,26 @@
 // https://github.com/google/leveldb/blob/7306ef856a91e462a73ff1832c1fa8771008ba36/db/c.cc
 //
 
-#include <string.h>
+#include <hazelcast_c_client/hazelcast_c_client.h>
 
-#include <hazelcast_c_client.h>
 #include <hazelcast/client/HazelcastAll.h>
 
-using namespace std;
-using namespace hazelcast::client;
-using namespace hazelcast::client::proxy;
-using namespace hazelcast::client::spi;
-using namespace hazelcast::client::serialization::pimpl;
+#include <string>
 
-class RawDataIMapImpl : protected IMapImpl
-{
-public:
-    RawDataIMapImpl(const std::string &instanceName, spi::ClientContext *context)
-            : IMapImpl(instanceName, context) {};
+using std::string;
+
+using hazelcast::client::HazelcastClient;
+using hazelcast::client::ClientConfig;
+using hazelcast::client::Address;
+using hazelcast::client::LogLevel;
+using hazelcast::client::proxy::IMapImpl;
+using hazelcast::client::spi::ClientContext;
+using hazelcast::client::serialization::pimpl::Data;
+
+class RawDataIMapImpl : protected IMapImpl {
+ public:
+    RawDataIMapImpl(const std::string &instanceName, ClientContext *context)
+            : IMapImpl(instanceName, context) {}
 
     using IMapImpl::set;
     using IMapImpl::getData;
@@ -32,8 +38,7 @@ public:
 };
 
 /* Internal */
-static void saveMessageInErrPtr(char **errPtr, const char *message)
-{
+static void saveMessageInErrPtr(char **errPtr, const char *message) {
     assert(errPtr != NULL);
 
     if (message == NULL) {
@@ -48,8 +53,7 @@ static void saveMessageInErrPtr(char **errPtr, const char *message)
     }
 }
 
-static void saveUnknownErrorOccurredMessageInErrPtr(char **errPtr)
-{
+static void saveUnknownErrorOccurredMessageInErrPtr(char **errPtr) {
     assert(errPtr != NULL);
 
     saveMessageInErrPtr(errPtr, "Unknown failure occurred. Possible memory corruption.");
@@ -70,22 +74,21 @@ extern "C" struct Hazelcast_Data_t {
 };
 
 /* Serialization functions */
+// @FIXME is there any case in which SerializationService::toObject can return NULL?
+// @FIXME is there any case where serialization can throw exceptions? (then we need to implement error handling)
+
 // string
 extern "C" Hazelcast_Data_t *Hazelcast_Serialization_stringToData(
     const Hazelcast_Client_t *client,
     const char *stringValue,
     size_t len
-)
-{
+) {
     assert(client != NULL);
     assert(client->context != NULL);
 
     assert(stringValue != NULL);
 
     assert(len > 0);
-
-    // http://stackoverflow.com/questions/347949/how-to-convert-a-stdstring-to-const-char-or-char
-    // @TODO see exception safety
 
     const std::string stdstr(stringValue, len);
     Data hazelcastData = client->context->getSerializationService().toData(&stdstr);
@@ -99,31 +102,24 @@ extern "C" Hazelcast_Data_t *Hazelcast_Serialization_stringToData(
 extern "C" char *Hazelcast_Serialization_dataToString(
     const Hazelcast_Client_t *client,
     const Hazelcast_Data_t *data
-)
-{
+) {
     assert(client != NULL);
     assert(client->context != NULL);
 
-    if (data == NULL) {
-        return NULL;
-    }
+    assert(data != NULL);
 
     std::auto_ptr<std::string> stringPtr = client->context->getSerializationService().toObject<std::string>(data->data);
     std::string *stringValue = stringPtr.get();
+    assert(stringValue != NULL);
 
-    if (stringValue != NULL) {
-        return strdup(stringValue->c_str());
-    }
-
-    return NULL;
+    return strdup(stringValue->c_str());
 }
 
 // int
 extern "C" Hazelcast_Data_t *Hazelcast_Serialization_intToData(
     const Hazelcast_Client_t *client,
     int intValue
-)
-{
+) {
     assert(client != NULL);
     assert(client->context != NULL);
 
@@ -135,46 +131,37 @@ extern "C" Hazelcast_Data_t *Hazelcast_Serialization_intToData(
     return data;
 }
 
-extern "C" int *Hazelcast_Serialization_dataToInt(
+extern "C" int Hazelcast_Serialization_dataToInt(
     const Hazelcast_Client_t *client,
     const Hazelcast_Data_t *data
-)
-{
+) {
     assert(client != NULL);
     assert(client->context != NULL);
 
-    if (data == NULL) {
-        return NULL;
-    }
+    assert(data != NULL);
 
     std::auto_ptr<int> intPtr = client->context->getSerializationService().toObject<int>(data->data);
     int *intValue = intPtr.get();
+    assert(intValue != NULL);
 
-    if (intValue != NULL) {
-        return intValue;
-    }
-
-    return NULL;
+    return *intValue;
 }
 
-extern "C" void Hazelcast_Data_destroy(Hazelcast_Data_t *data)
-{
+extern "C" void Hazelcast_Data_destroy(Hazelcast_Data_t *data) {
     if (data != NULL) {
         delete data;
     }
 }
 
 /* Configuration */
-extern "C" Hazelcast_ClientConfig_t* Hazelcast_ClientConfig_create()
-{
+extern "C" Hazelcast_ClientConfig_t* Hazelcast_ClientConfig_create() {
      Hazelcast_ClientConfig_t *clientConfig = new Hazelcast_ClientConfig_t;
      clientConfig->config = new ClientConfig();
 
      return clientConfig;
 }
 
-extern "C" void Hazelcast_ClientConfig_destroy(Hazelcast_ClientConfig_t *clientConfig)
-{
+extern "C" void Hazelcast_ClientConfig_destroy(Hazelcast_ClientConfig_t *clientConfig) {
     if (clientConfig != NULL && clientConfig->config != NULL) {
         delete clientConfig->config;
     }
@@ -188,8 +175,7 @@ extern "C" void Hazelcast_ClientConfig_addAddress(
     const Hazelcast_ClientConfig_t *clientConfig,
     const char *networkAddress,
     int port
-)
-{
+) {
     assert(clientConfig != NULL);
     assert(clientConfig->config != NULL);
 
@@ -203,29 +189,28 @@ extern "C" void Hazelcast_ClientConfig_addAddress(
 extern "C" void Hazelcast_ClientConfig_setLogLevel(
     const Hazelcast_ClientConfig_t *clientConfig,
     HAZELCAST_LOG_LEVEL logLevel
-)
-{
+) {
     assert(clientConfig != NULL);
     assert(clientConfig->config != NULL);
 
     switch (logLevel) {
         case HAZELCAST_LOG_LEVEL_SEVERE:
-            clientConfig->config->setLogLevel(SEVERE);
+            clientConfig->config->setLogLevel(LogLevel::SEVERE);
 
             break;
 
         case HAZELCAST_LOG_LEVEL_WARNING:
-            clientConfig->config->setLogLevel(WARNING);
+            clientConfig->config->setLogLevel(LogLevel::WARNING);
 
             break;
 
         case HAZELCAST_LOG_LEVEL_INFO:
-            clientConfig->config->setLogLevel(INFO);
+            clientConfig->config->setLogLevel(LogLevel::INFO);
 
             break;
 
         case HAZELCAST_LOG_LEVEL_FINEST:
-            clientConfig->config->setLogLevel(FINEST);
+            clientConfig->config->setLogLevel(LogLevel::FINEST);
 
             break;
 
@@ -238,8 +223,7 @@ extern "C" void Hazelcast_ClientConfig_setLogLevel(
 extern "C" Hazelcast_Client_t *Hazelcast_Client_create(
     Hazelcast_ClientConfig_t *clientConfig,
     char **errPtr
-)
-{
+) {
     assert(clientConfig != NULL);
     assert(clientConfig->config != NULL);
 
@@ -260,8 +244,7 @@ extern "C" Hazelcast_Client_t *Hazelcast_Client_create(
     return NULL;
 }
 
-extern "C" void Hazelcast_Client_destroy(Hazelcast_Client_t *client)
-{
+extern "C" void Hazelcast_Client_destroy(Hazelcast_Client_t *client) {
     if (client != NULL && client->client != NULL) {
         delete client->client;
     }
@@ -283,8 +266,7 @@ extern void Hazelcast_Map_set(
     const Hazelcast_Data_t *value,
     long ttl,
     char** errPtr
-)
-{
+) {
     assert(hazelcastClient != NULL);
     assert(hazelcastClient->client != NULL);
     assert(hazelcastClient->context != NULL);
@@ -311,8 +293,7 @@ extern Hazelcast_Data_t *Hazelcast_Map_get(
     const char *mapName,
     const Hazelcast_Data_t *key,
     char **errPtr
-)
-{
+) {
     assert(hazelcastClient != NULL);
     assert(hazelcastClient->client != NULL);
     assert(hazelcastClient->context != NULL);
@@ -350,8 +331,7 @@ extern int Hazelcast_Map_containsKey(
     const char *mapName,
     const Hazelcast_Data_t *key,
     char **errPtr
-)
-{
+) {
     assert(hazelcastClient != NULL);
     assert(hazelcastClient->client != NULL);
     assert(hazelcastClient->context != NULL);
@@ -384,8 +364,7 @@ extern void Hazelcast_Map_delete(
     const char *mapName,
     const Hazelcast_Data_t *key,
     char **errPtr
-)
-{
+) {
     assert(hazelcastClient != NULL);
     assert(hazelcastClient->client != NULL);
     assert(hazelcastClient->context != NULL);
@@ -410,8 +389,7 @@ extern int Hazelcast_Map_size(
     const Hazelcast_Client_t *hazelcastClient,
     const char *mapName,
     char **errPtr
-)
-{
+) {
     assert(hazelcastClient != NULL);
     assert(hazelcastClient->client != NULL);
     assert(hazelcastClient->context != NULL);
@@ -433,8 +411,7 @@ extern int Hazelcast_Map_size(
 }
 
 /* API functions */
-extern "C" void Hazelcast_free(void *ptr)
-{
+extern "C" void Hazelcast_free(void *ptr) {
     free(ptr);
 }
 

@@ -1,7 +1,9 @@
+// Copyright 2016, Max Beutel
+
 #include <stddef.h>
 
-#ifndef _hazelcast_c_client_h
-#define _hazelcast_c_client_h
+#ifndef INCLUDE_HAZELCAST_C_CLIENT_H_
+#define INCLUDE_HAZELCAST_C_CLIENT_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,7 +44,7 @@ extern Hazelcast_Data_t *Hazelcast_Serialization_intToData(
     int intValue
 );
 
-extern int *Hazelcast_Serialization_dataToInt(
+extern int Hazelcast_Serialization_dataToInt(
     const Hazelcast_Client_t *client,
     const Hazelcast_Data_t *data
 );
@@ -119,10 +121,10 @@ extern void Hazelcast_free(void *ptr);
 #define Hazelcast_resetError(V) Hazelcast_free(V); V = NULL;
 
 /* Debug */
-//extern void Hazelcast_test();
+// extern void Hazelcast_test();
 
 #ifdef __cplusplus
 }  /* end extern "C" */
 #endif
 
-#endif
+#endif  // INCLUDE_HAZELCAST_C_CLIENT_H_
