@@ -15,9 +15,9 @@
  */
 
 #include "hazelcast_c_client/util/errorhandling.hpp"
+#include "hazelcast_c_client/util/string.hpp"
 
 #include <assert.h>
-
 #include <string>
 
 namespace hazelcast_c_client {
@@ -26,14 +26,19 @@ namespace hazelcast_c_client {
             assert(errPtr != NULL);
 
             if (message == NULL) {
-                *errPtr = strdup("(HAZELCAST ERROR occurred, but message was empty)");
+                const char *defaultMessage = "(HAZELCAST ERROR occurred, but message was empty)";
+                size_t defaultMessage_len = strlen(defaultMessage);
+
+                *errPtr = duplicateString(defaultMessage, defaultMessage_len);
             } else {
-                if (*errPtr == NULL) {
-                    *errPtr = strdup(message);
-                } else {
+                size_t message_len = strlen(message);
+
+                // let's be nice
+                if (*errPtr != NULL) {
                     free(*errPtr);
-                    *errPtr = strdup(message);
                 }
+
+                *errPtr = duplicateString(message, message_len);
             }
         }
 

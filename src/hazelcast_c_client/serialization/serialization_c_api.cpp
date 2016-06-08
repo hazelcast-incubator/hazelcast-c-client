@@ -16,6 +16,7 @@
 
 #include "hazelcast_c_client/serialization/serialization_c_api.hpp"
 #include "hazelcast_c_client/client/client_c_api.hpp"
+#include "hazelcast_c_client/util/string.hpp"
 
 #include <string>
 
@@ -26,6 +27,8 @@ using hazelcast::client::LogLevel;
 using hazelcast::client::proxy::IMapImpl;
 using hazelcast::client::spi::ClientContext;
 using hazelcast::client::serialization::pimpl::Data;
+
+using hazelcast_c_client::util::duplicateString;
 
 /* Serialization functions */
 // @FIXME is there any case in which SerializationService::toObject can return NULL?
@@ -66,7 +69,7 @@ extern "C" char *Hazelcast_Serialization_dataToString(
     std::string *stringValue = stringPtr.get();
     assert(stringValue != NULL);
 
-    return strdup(stringValue->c_str());
+    return duplicateString(stringValue->c_str(), stringValue->length());
 }
 
 // int

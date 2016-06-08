@@ -39,6 +39,7 @@ set(libSources src/hazelcast_c_client/client/client_c_api.cpp
     src/hazelcast_c_client/map/RawDataIMapImpl.hpp
     src/hazelcast_c_client/map/map_c_api.cpp
     src/hazelcast_c_client/serialization/serialization_c_api.cpp
+    src/hazelcast_c_client/util/string.cpp
     src/hazelcast_c_client/util/errorhandling.cpp)
 
 add_library(hazelcastCClient ${libSources})
