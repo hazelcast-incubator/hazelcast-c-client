@@ -16,6 +16,10 @@
 
 #include "hazelcast_c_client/util/errorhandling.hpp"
 
+#include <assert.h>
+
+#include <string>
+
 namespace hazelcast_c_client {
     namespace util {
         void saveMessageInErrPtr(char **errPtr, const char *message) {

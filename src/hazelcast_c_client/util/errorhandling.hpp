@@ -17,10 +17,6 @@
 #ifndef INCLUDE_HAZELCAST_C_CLIENT_UTIL_ERRORHANDLING_HPP_
 #define INCLUDE_HAZELCAST_C_CLIENT_UTIL_ERRORHANDLING_HPP_
 
-#include <assert.h>
-
-#include <string>
-
 namespace hazelcast_c_client {
     namespace util {
         void saveMessageInErrPtr(char **errPtr, const char *message);
