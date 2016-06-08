@@ -59,13 +59,14 @@
 
     <target name="codestyle">
         <apply executable="lib/styleguide/cpplint/cpplint.py" failonerror="false" parallel="false" >
-            <arg line="--linelength=120 --filter=-runtime/int"/>
+            <arg line="--extensions=hpp,cpp,h --linelength=120 --filter=-build/include_order,-runtime/int,-readability/namespace,-runtime/indentation_namespace"/>
             <srcfile/>
 
             <fileset id="sources" dir="${basedir}">
                 <include name="include/*.h" />
-                <include name="src/*.cpp" />
-                <include name="test/*.cpp" />
+                <include name="src/**/*.cpp" />
+                <include name="src/**/*.hpp" />
+                <include name="test/**/*.cpp" />
             </fileset>
         </apply>
     </target>

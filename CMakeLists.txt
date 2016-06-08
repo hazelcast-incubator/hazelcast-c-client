@@ -26,6 +26,7 @@ link_directories("${GTEST_HOME}/build/googlemock")
 enable_testing()
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-pedantic -Wall -Wextra")
@@ -34,7 +35,11 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS "-pedantic -Wall -Wextra")
 
 # client lib
-set(libSources src/hazelcast_c_client.cpp)
+set(libSources src/hazelcast_c_client/client/client_c_api.cpp
+    src/hazelcast_c_client/map/RawDataIMapImpl.hpp
+    src/hazelcast_c_client/map/map_c_api.cpp
+    src/hazelcast_c_client/serialization/serialization_c_api.cpp
+    src/hazelcast_c_client/util/errorhandling.cpp)
 
 add_library(hazelcastCClient ${libSources})
 

@@ -21,5 +21,9 @@ WARNING: C client is still early stage and therefore super unstable and most lik
 
 Current state of implementation:
 
+# License
+
+Hazelcast C Client is available under the Apache 2 License.
+
 
 

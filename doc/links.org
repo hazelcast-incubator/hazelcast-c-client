@@ -1,0 +1,4 @@
+http://www.oracle.com/technetwork/articles/servers-storage-dev/mixingcandcpluspluscode-305840.html#cpp_from_c
+https://isocpp.org/wiki/faq/mixing-c-and-cpp
+https://github.com/emnl/leveldb-c-example/blob/master/leveldb_example.c
+https://github.com/google/leveldb/blob/7306ef856a91e462a73ff1832c1fa8771008ba36/db/c.cc
