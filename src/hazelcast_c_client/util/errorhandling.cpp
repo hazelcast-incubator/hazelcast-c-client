@@ -19,6 +19,7 @@
 
 #include <assert.h>
 #include <cstring>
+#include <cstdlib>
 
 namespace hazelcast_c_client {
     namespace util {
