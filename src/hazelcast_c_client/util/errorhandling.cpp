@@ -18,7 +18,7 @@
 #include "hazelcast_c_client/util/string.hpp"
 
 #include <assert.h>
-#include <string>
+#include <cstring>
 
 namespace hazelcast_c_client {
     namespace util {
