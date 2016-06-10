@@ -154,3 +154,4 @@ lib/hazelcast-cpp-client
 lib/styleguide
 
 test/fixtures/hazelcast-server/hazelcast-3.6.2/
+README.html
