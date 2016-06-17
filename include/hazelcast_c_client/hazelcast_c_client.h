@@ -42,6 +42,8 @@ typedef enum {
 } HAZELCAST_LOG_LEVEL;
 
 /* Serialization */
+extern void Hazelcast_Data_destroy(Hazelcast_Data_t *data);
+
 // string
 extern Hazelcast_Data_t *Hazelcast_Serialization_stringToData(
     const Hazelcast_Client_t *client,
@@ -65,7 +67,27 @@ extern int Hazelcast_Serialization_dataToInt(
     const Hazelcast_Data_t *data
 );
 
-extern void Hazelcast_Data_destroy(Hazelcast_Data_t *data);
+// float
+extern Hazelcast_Data_t *Hazelcast_Serialization_floatToData(
+    const Hazelcast_Client_t *client,
+    float floatValue
+);
+
+extern float Hazelcast_Serialization_dataToFloat(
+    const Hazelcast_Client_t *client,
+    const Hazelcast_Data_t *data
+);
+
+// double
+extern Hazelcast_Data_t *Hazelcast_Serialization_doubleToData(
+    const Hazelcast_Client_t *client,
+    double doubleValue
+);
+
+extern double Hazelcast_Serialization_dataToDouble(
+    const Hazelcast_Client_t *client,
+    const Hazelcast_Data_t *data
+);
 
 /* Configuration */
 extern Hazelcast_ClientConfig_t* Hazelcast_ClientConfig_create();

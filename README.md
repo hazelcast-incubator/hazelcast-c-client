@@ -38,6 +38,12 @@ This command should be executed in the root directory of the cloned repository.
 
     Hazelcast_Serialization_intToData();
     Hazelcast_Serialization_dataToInt();
+    
+    Hazelcast_Serialization_floatToData();
+    Hazelcast_Serialization_dataToFloat();
+        
+    Hazelcast_Serialization_doubleToData();
+    Hazelcast_Serialization_dataToDouble();        
 
 ## Map
 
@@ -94,7 +100,7 @@ Only a subset of client options is implemented, you can:
 
 Only `Map` data structures can be accessed for now.
 
-Only `char *` and `int` values can be serialized for now.
+Only `char *`, `int`, `float`, `double` values can be serialized.
 
 Only Hazelcast 3.6 is supported for now.
 

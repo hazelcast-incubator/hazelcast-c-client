@@ -27,6 +27,8 @@
 #define TEST_STRING_LEN strlen(TEST_STRING)
 
 #define TEST_INT 123456
+#define TEST_FLOAT 123.45f
+#define TEST_DOUBLE 123.45
 
 TEST(Serialization, StringSerialization) {
     char *errPtr = NULL;
@@ -73,6 +75,60 @@ TEST(Serialization, IntSerialization) {
 
     int deserializedInt = Hazelcast_Serialization_dataToInt(client, data);
     ASSERT_EQ(deserializedInt, TEST_INT);
+
+    // cleanup
+    Hazelcast_Data_destroy(data);
+
+    Hazelcast_Client_destroy(client);
+    Hazelcast_ClientConfig_destroy(clientConfig);
+
+    Hazelcast_resetError(errPtr);
+}
+
+TEST(Serialization, FloatSerialization) {
+    char *errPtr = NULL;
+
+    // client setup
+    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create();
+    Hazelcast_ClientConfig_addAddress(clientConfig, HAZELCAST_TEST_SERVER_HOST, HAZELCAST_TEST_SERVER_PORT);
+    Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
+
+    Hazelcast_Client_t *client = Hazelcast_Client_create(clientConfig, &errPtr);
+    assert(client != NULL && "Client create failed.");
+
+    // serialization
+    Hazelcast_Data_t *data = Hazelcast_Serialization_floatToData(client, TEST_FLOAT);
+    assert(data != NULL && "Expected serialization to return data.");
+
+    float deserializedFloat = Hazelcast_Serialization_dataToInt(client, data);
+    ASSERT_FLOAT_EQ(TEST_FLOAT, deserializedFloat);
+
+    // cleanup
+    Hazelcast_Data_destroy(data);
+
+    Hazelcast_Client_destroy(client);
+    Hazelcast_ClientConfig_destroy(clientConfig);
+
+    Hazelcast_resetError(errPtr);
+}
+
+TEST(Serialization, DoubleSerialization) {
+    char *errPtr = NULL;
+
+    // client setup
+    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create();
+    Hazelcast_ClientConfig_addAddress(clientConfig, HAZELCAST_TEST_SERVER_HOST, HAZELCAST_TEST_SERVER_PORT);
+    Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
+
+    Hazelcast_Client_t *client = Hazelcast_Client_create(clientConfig, &errPtr);
+    assert(client != NULL && "Client create failed.");
+
+    // serialization
+    Hazelcast_Data_t *data = Hazelcast_Serialization_intToData(client, TEST_DOUBLE);
+    assert(data != NULL && "Expected serialization to return data.");
+
+    double deserializedDouble = Hazelcast_Serialization_dataToInt(client, data);
+    ASSERT_DOUBLE_EQ(deserializedDouble, TEST_DOUBLE);
 
     // cleanup
     Hazelcast_Data_destroy(data);
