@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/maxbeutel/hazelcast-c-client.svg?branch=master)](https://travis-ci.org/maxbeutel/hazelcast-c-client)
+[![Build Status](https://travis-ci.org/hazelcast-incubator/hazelcast-c-client.svg?branch=master)](https://travis-ci.org/maxbeutel/hazelcast-c-client)
 
 # C Client bindings for Hazelcast
 
