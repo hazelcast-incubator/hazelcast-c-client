@@ -32,8 +32,29 @@ namespace hazelcast_c_client {
             using hazelcast::client::proxy::IMapImpl::set;
             using hazelcast::client::proxy::IMapImpl::getData;
             using hazelcast::client::proxy::IMapImpl::containsKey;
-            using hazelcast::client::proxy::IMapImpl::deleteEntry;
             using hazelcast::client::proxy::IMapImpl::size;
+            using hazelcast::client::proxy::IMapImpl::isEmpty;
+            using hazelcast::client::proxy::IMapImpl::clear;
+            using hazelcast::client::proxy::IMapImpl::containsValue;
+            using hazelcast::client::proxy::IMapImpl::putData;
+            using hazelcast::client::proxy::IMapImpl::removeData;
+            using hazelcast::client::proxy::IMapImpl::remove;
+            using hazelcast::client::proxy::IMapImpl::deleteEntry;
+            using hazelcast::client::proxy::IMapImpl::flush;
+            using hazelcast::client::proxy::IMapImpl::tryRemove;
+            using hazelcast::client::proxy::IMapImpl::tryPut;
+            using hazelcast::client::proxy::IMapImpl::putTransient;
+            using hazelcast::client::proxy::IMapImpl::putIfAbsentData;
+            using hazelcast::client::proxy::IMapImpl::replace;
+            using hazelcast::client::proxy::IMapImpl::replaceData;
+            using hazelcast::client::proxy::IMapImpl::lock;
+            using hazelcast::client::proxy::IMapImpl::isLocked;
+            using hazelcast::client::proxy::IMapImpl::tryLock;
+            using hazelcast::client::proxy::IMapImpl::unlock;
+            using hazelcast::client::proxy::IMapImpl::forceUnlock;
+            using hazelcast::client::proxy::IMapImpl::evict;
+            using hazelcast::client::proxy::IMapImpl::evictAll;
+            using hazelcast::client::proxy::IMapImpl::addIndex;
         };
     }
 }

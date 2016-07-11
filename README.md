@@ -38,19 +38,19 @@ This command should be executed in the root directory of the cloned repository.
 
     Hazelcast_Serialization_intToData();
     Hazelcast_Serialization_dataToInt();
-    
+
     Hazelcast_Serialization_floatToData();
     Hazelcast_Serialization_dataToFloat();
-        
+
     Hazelcast_Serialization_doubleToData();
-    Hazelcast_Serialization_dataToDouble();        
+    Hazelcast_Serialization_dataToDouble();
 
 ## Map
 
     Hazelcast_Map_set();
     Hazelcast_Map_get();
     Hazelcast_Map_containsKey();
-    Hazelcast_Map_delete();
+    Hazelcast_Map_deleteEntry();
     Hazelcast_Map_size();
 
 # API design
@@ -79,7 +79,7 @@ Example of storing a string in Hazelcast via C API:
     Hazelcast_Data_t *keyData = Hazelcast_Serialization_stringToData(client, rawKey, strlen(rawKey));
     Hazelcast_Data_t *valueData = Hazelcast_Serialization_stringToData(client, rawValue, strlen(rawValue));
 
-    Hazelcast_Map_set(client, TEST_MAP_NAME, keyData, valueData, 0, &errPtr);
+    Hazelcast_Map_set(client, TEST_MAP_NAME, keyData, valueData, &errPtr);
     assert(errPtr == NULL);
 
     // free serialized data!

@@ -20,6 +20,8 @@
 
 #include "gtest/gtest.h"
 
+// @TODO replace with const variables
+// @TODO rewrite tests to use CppUTest
 #define HAZELCAST_TEST_SERVER_HOST "127.0.0.1"
 #define HAZELCAST_TEST_SERVER_PORT 5701
 
@@ -79,7 +81,7 @@ TEST(MapAPI, UseFunctionsWithStringData) {
     valueData = Hazelcast_Serialization_stringToData(client, rawValue, strlen(rawValue));
 
     // save new key/value pair
-    Hazelcast_Map_set(client, TEST_MAP_NAME, keyData, valueData, 0, &errPtr);
+    Hazelcast_Map_set(client, TEST_MAP_NAME, keyData, valueData, &errPtr);
     ASSERT_STREQ(errPtr, NULL) << "Failed to store key/value pair in map.";
 
     // check if key exists in map
@@ -101,7 +103,7 @@ TEST(MapAPI, UseFunctionsWithStringData) {
     free(storedValue);
 
     // remove key
-    Hazelcast_Map_delete(client, TEST_MAP_NAME, keyData, &errPtr);
+    Hazelcast_Map_deleteEntry(client, TEST_MAP_NAME, keyData, &errPtr);
     ASSERT_STREQ(errPtr, NULL) << "Failed to delete key from map.";
 
     // cleanup

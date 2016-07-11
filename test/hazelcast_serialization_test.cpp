@@ -100,7 +100,7 @@ TEST(Serialization, FloatSerialization) {
     Hazelcast_Data_t *data = Hazelcast_Serialization_floatToData(client, TEST_FLOAT);
     assert(data != NULL && "Expected serialization to return data.");
 
-    float deserializedFloat = Hazelcast_Serialization_dataToInt(client, data);
+    float deserializedFloat = Hazelcast_Serialization_dataToFloat(client, data);
     ASSERT_FLOAT_EQ(TEST_FLOAT, deserializedFloat);
 
     // cleanup
@@ -124,10 +124,10 @@ TEST(Serialization, DoubleSerialization) {
     assert(client != NULL && "Client create failed.");
 
     // serialization
-    Hazelcast_Data_t *data = Hazelcast_Serialization_intToData(client, TEST_DOUBLE);
+    Hazelcast_Data_t *data = Hazelcast_Serialization_doubleToData(client, TEST_DOUBLE);
     assert(data != NULL && "Expected serialization to return data.");
 
-    double deserializedDouble = Hazelcast_Serialization_dataToInt(client, data);
+    double deserializedDouble = Hazelcast_Serialization_dataToDouble(client, data);
     ASSERT_DOUBLE_EQ(deserializedDouble, TEST_DOUBLE);
 
     // cleanup

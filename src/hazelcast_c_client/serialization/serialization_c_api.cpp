@@ -21,12 +21,6 @@
 #include <string>
 #include <type_traits>
 
-using hazelcast::client::HazelcastClient;
-using hazelcast::client::ClientConfig;
-using hazelcast::client::Address;
-using hazelcast::client::LogLevel;
-using hazelcast::client::proxy::IMapImpl;
-using hazelcast::client::spi::ClientContext;
 using hazelcast::client::serialization::pimpl::Data;
 
 using hazelcast_c_client::util::duplicateString;
