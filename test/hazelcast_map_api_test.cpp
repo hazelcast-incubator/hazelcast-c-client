@@ -27,6 +27,53 @@
 
 #define TEST_MAP_NAME "test-map"
 
+TEST(MapAPI, put) {
+    char *errPtr = NULL;
+
+    const char *rawKey = "map_key_put_17";
+    Hazelcast_Data_t *keyData = NULL;
+
+    const char *rawValue = "map_value_put";
+    Hazelcast_Data_t *valueData = NULL;
+
+    const char *rawValueOverwrite = "map_value_put_overwrite";
+    Hazelcast_Data_t *valueDataOverwrite = NULL;
+
+    Hazelcast_Data_t *storedData = NULL;
+
+    // client setup
+    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create();
+    Hazelcast_ClientConfig_addAddress(clientConfig, HAZELCAST_TEST_SERVER_HOST, HAZELCAST_TEST_SERVER_PORT);
+    Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
+
+    Hazelcast_Client_t *client = Hazelcast_Client_create(clientConfig, &errPtr);
+    assert(client != NULL && "Client create failed.");
+
+    // key not yet being in the map
+    keyData = Hazelcast_Serialization_stringToData(client, rawKey, strlen(rawKey));
+    valueData = Hazelcast_Serialization_stringToData(client, rawValue, strlen(rawValue));
+
+    Hazelcast_Map_deleteEntry(client, TEST_MAP_NAME, keyData, &errPtr);
+
+    storedData = Hazelcast_Map_put(client, TEST_MAP_NAME, keyData, valueData, &errPtr);
+    ASSERT_EQ(NULL, storedData) << "Key was not empty before put operation.";
+
+    // now put again
+    valueDataOverwrite = Hazelcast_Serialization_stringToData(client, rawValueOverwrite, strlen(rawValueOverwrite));
+
+    storedData = Hazelcast_Map_put(client, TEST_MAP_NAME, keyData, valueDataOverwrite, &errPtr);
+    assert(storedData != NULL && "Expected previously stored data to be returned.");
+
+    char *storedValue = Hazelcast_Serialization_dataToString(client, storedData);
+    ASSERT_STREQ(rawValue, storedValue) << "Previously stored value for key didn't match.";
+
+    // cleanup
+    Hazelcast_Client_destroy(client);
+    Hazelcast_ClientConfig_destroy(clientConfig);
+
+    Hazelcast_resetError(errPtr);
+}
+
 TEST(MapAPI, StringKeyNotFound) {
     char *errPtr = NULL;
 
