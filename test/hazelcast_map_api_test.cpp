@@ -54,20 +54,30 @@ TEST(MapAPI, put) {
     valueData = Hazelcast_Serialization_stringToData(client, rawValue, strlen(rawValue));
 
     Hazelcast_Map_deleteEntry(client, TEST_MAP_NAME, keyData, &errPtr);
+    ASSERT_STREQ(errPtr, NULL) << "Failed to delete prior to put.";
 
     storedData = Hazelcast_Map_put(client, TEST_MAP_NAME, keyData, valueData, &errPtr);
+    ASSERT_STREQ(errPtr, NULL) << "Failed to to put key to map.";
     ASSERT_EQ(NULL, storedData) << "Key was not empty before put operation.";
 
     // now put again
     valueDataOverwrite = Hazelcast_Serialization_stringToData(client, rawValueOverwrite, strlen(rawValueOverwrite));
 
     storedData = Hazelcast_Map_put(client, TEST_MAP_NAME, keyData, valueDataOverwrite, &errPtr);
+    ASSERT_STREQ(errPtr, NULL) << "Failed to to put key to map.";
     assert(storedData != NULL && "Expected previously stored data to be returned.");
 
     char *storedValue = Hazelcast_Serialization_dataToString(client, storedData);
     ASSERT_STREQ(rawValue, storedValue) << "Previously stored value for key didn't match.";
 
     // cleanup
+    Hazelcast_Data_destroy(keyData);
+    Hazelcast_Data_destroy(valueData);
+    Hazelcast_Data_destroy(storedData);
+    Hazelcast_Data_destroy(valueDataOverwrite);
+
+    free(storedValue);
+
     Hazelcast_Client_destroy(client);
     Hazelcast_ClientConfig_destroy(clientConfig);
 
@@ -98,6 +108,8 @@ TEST(MapAPI, StringKeyNotFound) {
     ASSERT_EQ(NULL, nullData) << "Key was not expected to be found in map.";
 
     // cleanup
+    Hazelcast_Data_destroy(unknownKeyData);
+
     Hazelcast_Client_destroy(client);
     Hazelcast_ClientConfig_destroy(clientConfig);
 
