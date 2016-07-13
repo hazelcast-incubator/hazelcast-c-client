@@ -50,8 +50,11 @@ TEST(MapAPI, put) {
     assert(client != NULL && "Client create failed.");
 
     // key not yet being in the map
-    keyData = Hazelcast_Serialization_stringToData(client, rawKey, strlen(rawKey));
-    valueData = Hazelcast_Serialization_stringToData(client, rawValue, strlen(rawValue));
+    keyData = Hazelcast_Serialization_stringToData(client, rawKey, strlen(rawKey), &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
+
+    valueData = Hazelcast_Serialization_stringToData(client, rawValue, strlen(rawValue), &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
 
     Hazelcast_Map_deleteEntry(client, TEST_MAP_NAME, keyData, &errPtr);
     ASSERT_STREQ(errPtr, NULL) << "Failed to delete prior to put.";
@@ -61,13 +64,16 @@ TEST(MapAPI, put) {
     ASSERT_EQ(NULL, storedData) << "Key was not empty before put operation.";
 
     // now put again
-    valueDataOverwrite = Hazelcast_Serialization_stringToData(client, rawValueOverwrite, strlen(rawValueOverwrite));
+    valueDataOverwrite = Hazelcast_Serialization_stringToData(client, rawValueOverwrite, strlen(rawValueOverwrite), &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
 
     storedData = Hazelcast_Map_put(client, TEST_MAP_NAME, keyData, valueDataOverwrite, &errPtr);
     ASSERT_STREQ(errPtr, NULL) << "Failed to to put key to map.";
     assert(storedData != NULL && "Expected previously stored data to be returned.");
 
-    char *storedValue = Hazelcast_Serialization_dataToString(client, storedData);
+    char *storedValue = Hazelcast_Serialization_dataToString(client, storedData, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
+
     ASSERT_STREQ(rawValue, storedValue) << "Previously stored value for key didn't match.";
 
     // cleanup
@@ -97,7 +103,8 @@ TEST(MapAPI, StringKeyNotFound) {
 
     // key not contained
     const char *unknownKey = "unknown key";
-    Hazelcast_Data_t *unknownKeyData = Hazelcast_Serialization_stringToData(client, unknownKey, strlen(unknownKey));
+    Hazelcast_Data_t *unknownKeyData = Hazelcast_Serialization_stringToData(client, unknownKey, strlen(unknownKey), &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
 
     int keyExists = Hazelcast_Map_containsKey(client, TEST_MAP_NAME, unknownKeyData, &errPtr);
     ASSERT_STREQ(errPtr, NULL) << "Failed to check if key is contained in map.";
@@ -136,8 +143,11 @@ TEST(MapAPI, UseFunctionsWithStringData) {
     assert(client != NULL && "Client create failed.");
 
     // serialize key and value into Data object
-    keyData = Hazelcast_Serialization_stringToData(client, rawKey, strlen(rawKey));
-    valueData = Hazelcast_Serialization_stringToData(client, rawValue, strlen(rawValue));
+    keyData = Hazelcast_Serialization_stringToData(client, rawKey, strlen(rawKey), &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
+
+    valueData = Hazelcast_Serialization_stringToData(client, rawValue, strlen(rawValue), &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
 
     // save new key/value pair
     Hazelcast_Map_set(client, TEST_MAP_NAME, keyData, valueData, &errPtr);
@@ -156,7 +166,9 @@ TEST(MapAPI, UseFunctionsWithStringData) {
     storedData = Hazelcast_Map_get(client, TEST_MAP_NAME, keyData, &errPtr);
     ASSERT_STREQ(errPtr, NULL) << "Failed to check if key is contained in map.";
 
-    char *storedValue = Hazelcast_Serialization_dataToString(client, storedData);
+    char *storedValue = Hazelcast_Serialization_dataToString(client, storedData, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
+
     ASSERT_STREQ(storedValue, rawValue) << "Expected value is not equal to stored value.";
 
     free(storedValue);
