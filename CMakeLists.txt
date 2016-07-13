@@ -25,6 +25,13 @@ link_directories("${GTEST_HOME}/build/googlemock")
 # build settings
 enable_testing()
 
+include(CTest)
+
+if(UNIX)
+    set(CTEST_MEMORYCHECK_COMMAND, "valgrind")
+    set(CTEST_MEMORYCHECK_COMMAND_OPTIONS, "--trace-children=yes --leak-check=full")
+endif()
+
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 

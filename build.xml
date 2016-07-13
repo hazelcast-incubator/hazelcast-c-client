@@ -52,8 +52,12 @@
 
     <!-- tests/sanity -->
     <target name="tests" depends="build-c-client">
-        <exec executable="make" failonerror="true" dir="build">
-            <arg line="test ARGS='-V'"/>
+        <exec executable="ctest" failonerror="true" dir="build">
+            <arg line="-D ExperimentalTest"/>
+        </exec>
+
+        <exec executable="ctest" failonerror="true" dir="build">
+            <arg line="-D ExperimentalMemCheck"/>
         </exec>
     </target>
 
