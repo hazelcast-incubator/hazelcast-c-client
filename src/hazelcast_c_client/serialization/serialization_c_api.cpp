@@ -17,6 +17,7 @@
 #include "hazelcast_c_client/serialization/serialization_c_api.hpp"
 #include "hazelcast_c_client/client/client_c_api.hpp"
 #include "hazelcast_c_client/util/string.hpp"
+#include "hazelcast_c_client/util/errorhandling.hpp"
 
 #include <string>
 #include <type_traits>
@@ -25,32 +26,45 @@ using hazelcast::client::serialization::pimpl::Data;
 
 using hazelcast_c_client::util::duplicateString;
 
-/* Serialization functions */
-// @FIXME is there any case in which SerializationService::toObject can return NULL?
-// @FIXME is there any case where serialization can throw exceptions? (then we need to implement error handling)
+using hazelcast_c_client::util::saveMessageInErrPtr;
+using hazelcast_c_client::util::saveUnknownErrorOccurredMessageInErrPtr;
 
+/* Serialization functions */
 template <typename T>
 static Hazelcast_Data_t *Hazelcast_Serialization_numberTypeToData(
     const Hazelcast_Client_t *client,
-    T value
+    T value,
+    char **errPtr
 ) {
     static_assert(std::is_arithmetic<T>::value, "Bad T - must be arithmetic type.");
 
     assert(client != NULL);
     assert(client->context != NULL);
 
-    Data hazelcastData = client->context->getSerializationService().toData(&value);
+    try {
+        Data hazelcastData = client->context->getSerializationService().toData(&value);
 
-    Hazelcast_Data_t *data = new Hazelcast_Data_t();
-    data->data = hazelcastData;
+        Hazelcast_Data_t *data = new Hazelcast_Data_t();
+        data->data = hazelcastData;
 
-    return data;
+        return data;
+    } catch(const std::runtime_error& re) {
+        saveMessageInErrPtr(errPtr, re.what());
+    } catch(const std::exception& ex) {
+        saveMessageInErrPtr(errPtr, ex.what());
+    } catch(...) {
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
+    }
+
+    return NULL;
 }
 
 template <typename T>
 static T Hazelcast_Serialization_dataToNumberType(
     const Hazelcast_Client_t *client,
-    const Hazelcast_Data_t *data
+    const Hazelcast_Data_t *data,
+    const T defaultValue,
+    char **errPtr
 ) {
     static_assert(std::is_arithmetic<T>::value, "Bad T - must be arithmetic type.");
 
@@ -59,11 +73,21 @@ static T Hazelcast_Serialization_dataToNumberType(
 
     assert(data != NULL);
 
-    std::auto_ptr<T> ptr = client->context->getSerializationService().toObject<T>(data->data);
-    T *value = ptr.get();
-    assert(value != NULL);
+    try {
+        std::auto_ptr<T> ptr = client->context->getSerializationService().toObject<T>(data->data);
+        T *value = ptr.get();
+        assert(value != NULL);
 
-    return *value;
+        return *value;
+    } catch(const std::runtime_error& re) {
+        saveMessageInErrPtr(errPtr, re.what());
+    } catch(const std::exception& ex) {
+        saveMessageInErrPtr(errPtr, ex.what());
+    } catch(...) {
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
+    }
+
+    return defaultValue;
 }
 
 extern "C" void Hazelcast_Data_destroy(Hazelcast_Data_t *data) {
@@ -76,7 +100,8 @@ extern "C" void Hazelcast_Data_destroy(Hazelcast_Data_t *data) {
 extern "C" Hazelcast_Data_t *Hazelcast_Serialization_stringToData(
     const Hazelcast_Client_t *client,
     const char *stringValue,
-    size_t len
+    size_t len,
+    char **errPtr
 ) {
     assert(client != NULL);
     assert(client->context != NULL);
@@ -85,72 +110,126 @@ extern "C" Hazelcast_Data_t *Hazelcast_Serialization_stringToData(
 
     assert(len > 0);
 
-    const std::string stdString(stringValue, len);
-    Data hazelcastData = client->context->getSerializationService().toData(&stdString);
+    try {
+        const std::string stdString(stringValue, len);
+        Data hazelcastData = client->context->getSerializationService().toData(&stdString);
 
-    Hazelcast_Data_t *data = new Hazelcast_Data_t();
-    data->data = hazelcastData;
+        Hazelcast_Data_t *data = new Hazelcast_Data_t();
+        data->data = hazelcastData;
 
-    return data;
+        return data;
+    } catch(const std::runtime_error& re) {
+        saveMessageInErrPtr(errPtr, re.what());
+    } catch(const std::exception& ex) {
+        saveMessageInErrPtr(errPtr, ex.what());
+    } catch(...) {
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
+    }
+
+    return NULL;
 }
 
 extern "C" char *Hazelcast_Serialization_dataToString(
     const Hazelcast_Client_t *client,
-    const Hazelcast_Data_t *data
+    const Hazelcast_Data_t *data,
+    char **errPtr
 ) {
     assert(client != NULL);
     assert(client->context != NULL);
 
     assert(data != NULL);
 
-    std::auto_ptr<std::string> stringPtr = client->context->getSerializationService().toObject<std::string>(data->data);
-    std::string *stringValue = stringPtr.get();
-    assert(stringValue != NULL);
+    try {
+        std::auto_ptr<std::string> stringPtr = client->context->getSerializationService().toObject<std::string>(data->data);
+        std::string *stringValue = stringPtr.get();
+        assert(stringValue != NULL);
 
-    return duplicateString(stringValue->c_str(), stringValue->length());
+        return duplicateString(stringValue->c_str(), stringValue->length());
+    } catch(const std::runtime_error& re) {
+        saveMessageInErrPtr(errPtr, re.what());
+    } catch(const std::exception& ex) {
+        saveMessageInErrPtr(errPtr, ex.what());
+    } catch(...) {
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
+    }
+
+    return NULL;
 }
 
 // int
 extern "C" Hazelcast_Data_t *Hazelcast_Serialization_intToData(
     const Hazelcast_Client_t *client,
-    int intValue
+    int intValue,
+    char **errPtr
 ) {
-    return Hazelcast_Serialization_numberTypeToData(client, intValue);
+    return Hazelcast_Serialization_numberTypeToData(
+        client,
+        intValue,
+        errPtr
+    );
 }
 
 extern "C" int Hazelcast_Serialization_dataToInt(
     const Hazelcast_Client_t *client,
-    const Hazelcast_Data_t *data
+    const Hazelcast_Data_t *data,
+    char **errPtr
 ) {
-    return Hazelcast_Serialization_dataToNumberType<int>(client, data);
+    return Hazelcast_Serialization_dataToNumberType<int>(
+        client,
+        data,
+        HAZELCAST_UNKNOWN_INT_VALUE,
+        errPtr
+    );
 }
 
 // float
 extern "C" Hazelcast_Data_t *Hazelcast_Serialization_floatToData(
     const Hazelcast_Client_t *client,
-    float floatValue
+    float floatValue,
+    char **errPtr
 ) {
-    return Hazelcast_Serialization_numberTypeToData(client, floatValue);
+    return Hazelcast_Serialization_numberTypeToData(
+        client,
+        floatValue,
+        errPtr
+    );
 }
 
 extern "C" float Hazelcast_Serialization_dataToFloat(
     const Hazelcast_Client_t *client,
-    const Hazelcast_Data_t *data
+    const Hazelcast_Data_t *data,
+    char **errPtr
 ) {
-    return Hazelcast_Serialization_dataToNumberType<float>(client, data);
+    return Hazelcast_Serialization_dataToNumberType<float>(
+        client,
+        data,
+        static_cast<float>(HAZELCAST_UNKNOWN_INT_VALUE),
+        errPtr
+    );
 }
 
 // double
 extern "C" Hazelcast_Data_t *Hazelcast_Serialization_doubleToData(
     const Hazelcast_Client_t *client,
-    double doubleValue
+    double doubleValue,
+    char **errPtr
 ) {
-    return Hazelcast_Serialization_numberTypeToData(client, doubleValue);
+    return Hazelcast_Serialization_numberTypeToData(
+        client,
+        doubleValue,
+        errPtr
+    );
 }
 
 extern "C" double Hazelcast_Serialization_dataToDouble(
     const Hazelcast_Client_t *client,
-    const Hazelcast_Data_t *data
+    const Hazelcast_Data_t *data,
+    char **errPtr
 ) {
-    return Hazelcast_Serialization_dataToNumberType<double>(client, data);
+    return Hazelcast_Serialization_dataToNumberType<double>(
+        client,
+        data,
+        static_cast<double>(HAZELCAST_UNKNOWN_INT_VALUE),
+        errPtr
+    );
 }

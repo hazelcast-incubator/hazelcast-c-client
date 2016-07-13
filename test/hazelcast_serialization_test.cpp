@@ -42,10 +42,13 @@ TEST(Serialization, StringSerialization) {
     assert(client != NULL && "Client create failed.");
 
     // serialization
-    Hazelcast_Data_t *data = Hazelcast_Serialization_stringToData(client, TEST_STRING, TEST_STRING_LEN);
+    Hazelcast_Data_t *data = Hazelcast_Serialization_stringToData(client, TEST_STRING, TEST_STRING_LEN, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
     assert(data != NULL && "Expected serialization to return data.");
 
-    char *deserializedString = Hazelcast_Serialization_dataToString(client, data);
+    char *deserializedString = Hazelcast_Serialization_dataToString(client, data, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
+
     ASSERT_STREQ(deserializedString, TEST_STRING);
     free(deserializedString);
 
@@ -70,10 +73,13 @@ TEST(Serialization, IntSerialization) {
     assert(client != NULL && "Client create failed.");
 
     // serialization
-    Hazelcast_Data_t *data = Hazelcast_Serialization_intToData(client, TEST_INT);
+    Hazelcast_Data_t *data = Hazelcast_Serialization_intToData(client, TEST_INT, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
     assert(data != NULL && "Expected serialization to return data.");
 
-    int deserializedInt = Hazelcast_Serialization_dataToInt(client, data);
+    int deserializedInt = Hazelcast_Serialization_dataToInt(client, data, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
+
     ASSERT_EQ(deserializedInt, TEST_INT);
 
     // cleanup
@@ -97,10 +103,13 @@ TEST(Serialization, FloatSerialization) {
     assert(client != NULL && "Client create failed.");
 
     // serialization
-    Hazelcast_Data_t *data = Hazelcast_Serialization_floatToData(client, TEST_FLOAT);
+    Hazelcast_Data_t *data = Hazelcast_Serialization_floatToData(client, TEST_FLOAT, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
     assert(data != NULL && "Expected serialization to return data.");
 
-    float deserializedFloat = Hazelcast_Serialization_dataToFloat(client, data);
+    float deserializedFloat = Hazelcast_Serialization_dataToFloat(client, data, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
+
     ASSERT_FLOAT_EQ(TEST_FLOAT, deserializedFloat);
 
     // cleanup
@@ -124,10 +133,13 @@ TEST(Serialization, DoubleSerialization) {
     assert(client != NULL && "Client create failed.");
 
     // serialization
-    Hazelcast_Data_t *data = Hazelcast_Serialization_doubleToData(client, TEST_DOUBLE);
+    Hazelcast_Data_t *data = Hazelcast_Serialization_doubleToData(client, TEST_DOUBLE, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
     assert(data != NULL && "Expected serialization to return data.");
 
-    double deserializedDouble = Hazelcast_Serialization_dataToDouble(client, data);
+    double deserializedDouble = Hazelcast_Serialization_dataToDouble(client, data, &errPtr);
+    assert(errPtr == NULL && "Exception happened during serialization.");
+
     ASSERT_DOUBLE_EQ(deserializedDouble, TEST_DOUBLE);
 
     // cleanup

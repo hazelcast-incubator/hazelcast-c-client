@@ -80,45 +80,53 @@ extern HAZELCAST_API_ void Hazelcast_Data_destroy(Hazelcast_Data_t *data);
 extern HAZELCAST_API_ Hazelcast_Data_t *Hazelcast_Serialization_stringToData(
     const Hazelcast_Client_t *client,
     const char *stringValue,
-    size_t len
+    size_t len,
+    char **errPtr
 );
 
 extern HAZELCAST_API_ char *Hazelcast_Serialization_dataToString(
     const Hazelcast_Client_t *client,
-    const Hazelcast_Data_t *data
+    const Hazelcast_Data_t *data,
+    char **errPtr
 );
 
 // integer
 extern HAZELCAST_API_ Hazelcast_Data_t *Hazelcast_Serialization_intToData(
     const Hazelcast_Client_t *client,
-    int intValue
+    int intValue,
+    char **errPtr
 );
 
 extern HAZELCAST_API_ int Hazelcast_Serialization_dataToInt(
     const Hazelcast_Client_t *client,
-    const Hazelcast_Data_t *data
+    const Hazelcast_Data_t *data,
+    char **errPtr
 );
 
 // float
 extern HAZELCAST_API_ Hazelcast_Data_t *Hazelcast_Serialization_floatToData(
     const Hazelcast_Client_t *client,
-    float floatValue
+    float floatValue,
+    char **errPtr
 );
 
 extern HAZELCAST_API_ float Hazelcast_Serialization_dataToFloat(
     const Hazelcast_Client_t *client,
-    const Hazelcast_Data_t *data
+    const Hazelcast_Data_t *data,
+    char **errPtr
 );
 
 // double
 extern HAZELCAST_API_ Hazelcast_Data_t *Hazelcast_Serialization_doubleToData(
     const Hazelcast_Client_t *client,
-    double doubleValue
+    double doubleValue,
+    char **errPtr
 );
 
 extern HAZELCAST_API_ double Hazelcast_Serialization_dataToDouble(
     const Hazelcast_Client_t *client,
-    const Hazelcast_Data_t *data
+    const Hazelcast_Data_t *data,
+    char **errPtr
 );
 
 /* Configuration */
