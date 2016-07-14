@@ -23,8 +23,6 @@ link_directories("${GTEST_HOME}/build/googlemock/gtest")
 link_directories("${GTEST_HOME}/build/googlemock")
 
 # build settings
-enable_testing()
-
 include(CTest)
 
 if(UNIX)
