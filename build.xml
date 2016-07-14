@@ -53,11 +53,11 @@
     <!-- tests/sanity -->
     <target name="tests" depends="build-c-client">
         <exec executable="ctest" failonerror="true" dir="build">
-            <arg line="-D ExperimentalTest"/>
+            <arg line="--output-on-failure -D ExperimentalTest"/>
         </exec>
 
         <exec executable="ctest" failonerror="true" dir="build">
-            <arg line="-D ExperimentalMemCheck"/>
+            <arg line="--output-on-failure -D ExperimentalMemCheck"/>
         </exec>
     </target>
 
