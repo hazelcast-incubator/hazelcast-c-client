@@ -45,7 +45,7 @@ set(libUtilSources
     src/hazelcast_c_client/util/errorhandling.cpp
 )
 
-add_library(hazelcastCClientUtil ${libUtilSources})
+add_library(hazelcastCClientUtil SHARED ${libUtilSources})
 
 # client lib
 set(libSources
@@ -55,7 +55,7 @@ set(libSources
     src/hazelcast_c_client/serialization/serialization_c_api.cpp
 )
 
-add_library(hazelcastCClient ${libSources})
+add_library(hazelcastCClient SHARED ${libSources})
 
 target_link_libraries(hazelcastCClient pthread)
 target_link_libraries(hazelcastCClient ${HAZELCAST_CPP_CLIENT_LIB})
