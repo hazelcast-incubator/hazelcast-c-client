@@ -74,7 +74,11 @@ static T Hazelcast_Serialization_dataToNumberType(
     assert(data != NULL);
 
     try {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         std::auto_ptr<T> ptr = client->context->getSerializationService().toObject<T>(data->data);
+#pragma GCC diagnostic pop
+
         T *value = ptr.get();
         assert(value != NULL);
 
@@ -140,7 +144,11 @@ extern "C" char *Hazelcast_Serialization_dataToString(
     assert(data != NULL);
 
     try {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         std::auto_ptr<std::string> stringPtr = client->context->getSerializationService().toObject<std::string>(data->data);
+#pragma GCC diagnostic pop
+
         std::string *stringValue = stringPtr.get();
         assert(stringValue != NULL);
 

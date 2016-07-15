@@ -104,7 +104,12 @@ extern Hazelcast_Data_t *Hazelcast_Map_get(
 
     try {
         RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         std::auto_ptr<Data> dataPtr = mapImpl.getData(key->data);
+#pragma GCC diagnostic pop
+
         Data *hazelcastData = dataPtr.get();
 
         if (hazelcastData != NULL) {
@@ -321,7 +326,12 @@ extern Hazelcast_Data_t *Hazelcast_Map_put(
 
     try {
         RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         std::auto_ptr<Data> dataPtr = mapImpl.putData(key->data, value->data);
+#pragma GCC diagnostic pop
+
         Data *hazelcastData = dataPtr.get();
 
         if (hazelcastData != NULL) {
@@ -391,7 +401,12 @@ extern Hazelcast_Data_t *Hazelcast_Map_remove(
 
     try {
         RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         std::auto_ptr<Data> dataPtr = mapImpl.removeData(key->data);
+#pragma GCC diagnostic pop
+
         Data *hazelcastData = dataPtr.get();
 
         if (hazelcastData != NULL) {
@@ -495,7 +510,12 @@ extern Hazelcast_Data_t *Hazelcast_Map_putTTL(
 
     try {
         RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         std::auto_ptr<Data> dataPtr = mapImpl.putData(key->data, value->data, ttlInMillis);
+#pragma GCC diagnostic pop
+
         Data *hazelcastData = dataPtr.get();
 
         if (hazelcastData != NULL) {
@@ -560,7 +580,12 @@ extern Hazelcast_Data_t *Hazelcast_Map_putIfAbsent(
 
     try {
         RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         std::auto_ptr<Data> dataPtr = mapImpl.putIfAbsentData(key->data, value->data, -1);
+#pragma GCC diagnostic pop
+
         Data *hazelcastData = dataPtr.get();
 
         if (hazelcastData != NULL) {
@@ -599,7 +624,12 @@ extern Hazelcast_Data_t *Hazelcast_Map_putIfAbsentTTL(
 
     try {
         RawDataIMapImpl mapImpl(mapName, hazelcastClient->context);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         std::auto_ptr<Data> dataPtr = mapImpl.putIfAbsentData(key->data, value->data, ttlInMillis);
+#pragma GCC diagnostic pop
+
         Data *hazelcastData = dataPtr.get();
 
         if (hazelcastData != NULL) {
