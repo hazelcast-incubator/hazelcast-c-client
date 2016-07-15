@@ -16,8 +16,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
-
-#include <algorithm>
+#include <cstring>
 
 #include "hazelcast_c_client/util/string.hpp"
 
@@ -30,7 +29,7 @@ namespace hazelcast_c_client {
             char *to = reinterpret_cast<char *>(malloc(from_len + 1));
             assert(to != NULL);
 
-            std::copy(from, from + from_len, to);
+            memcpy(to, from, from_len);
             to[from_len] = '\0';
 
             return to;
