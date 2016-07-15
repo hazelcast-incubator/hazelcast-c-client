@@ -326,7 +326,6 @@ extern Hazelcast_Data_t *Hazelcast_Map_put(
 
         if (hazelcastData != NULL) {
             Hazelcast_Data_t *data = new Hazelcast_Data_t();
-            // @FIXME that is a memory leak?
             data->data = *hazelcastData;
 
             return data;
