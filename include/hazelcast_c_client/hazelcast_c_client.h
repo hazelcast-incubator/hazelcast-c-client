@@ -130,7 +130,7 @@ extern HAZELCAST_API_ double Hazelcast_Serialization_dataToDouble(
 );
 
 /* Configuration */
-extern HAZELCAST_API_ Hazelcast_ClientConfig_t* Hazelcast_ClientConfig_create();
+extern HAZELCAST_API_ Hazelcast_ClientConfig_t* Hazelcast_ClientConfig_create(char **errPtr);
 
 extern HAZELCAST_API_ void Hazelcast_ClientConfig_destroy(Hazelcast_ClientConfig_t *clientConfig);
 

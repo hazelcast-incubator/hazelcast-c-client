@@ -42,7 +42,9 @@ TEST(MapAPI, put) {
     Hazelcast_Data_t *storedData = NULL;
 
     // client setup
-    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create();
+    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create(&errPtr);
+    assert(errPtr == NULL && "Exception happened when creating client config.");
+
     Hazelcast_ClientConfig_addAddress(clientConfig, HAZELCAST_TEST_SERVER_HOST, HAZELCAST_TEST_SERVER_PORT);
     Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
 
@@ -94,7 +96,9 @@ TEST(MapAPI, StringKeyNotFound) {
     char *errPtr = NULL;
 
     // client setup
-    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create();
+    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create(&errPtr);
+    assert(errPtr == NULL && "Exception happened when creating client config.");
+
     Hazelcast_ClientConfig_addAddress(clientConfig, HAZELCAST_TEST_SERVER_HOST, HAZELCAST_TEST_SERVER_PORT);
     Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
 
@@ -135,7 +139,9 @@ TEST(MapAPI, UseFunctionsWithStringData) {
     Hazelcast_Data_t *storedData = NULL;
 
     // client setup
-    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create();
+    Hazelcast_ClientConfig_t *clientConfig = Hazelcast_ClientConfig_create(&errPtr);
+    assert(errPtr == NULL && "Exception happened when creating client config.");
+
     Hazelcast_ClientConfig_addAddress(clientConfig, HAZELCAST_TEST_SERVER_HOST, HAZELCAST_TEST_SERVER_PORT);
     Hazelcast_ClientConfig_setLogLevel(clientConfig, HAZELCAST_LOG_LEVEL_SEVERE);
 

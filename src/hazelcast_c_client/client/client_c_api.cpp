@@ -27,11 +27,21 @@ using hazelcast_c_client::util::saveMessageInErrPtr;
 using hazelcast_c_client::util::saveUnknownErrorOccurredMessageInErrPtr;
 
 /* Configuration */
-extern "C" Hazelcast_ClientConfig_t* Hazelcast_ClientConfig_create() {
-    Hazelcast_ClientConfig_t *clientConfig = new Hazelcast_ClientConfig_t;
-    clientConfig->config = new ClientConfig();
+extern "C" Hazelcast_ClientConfig_t* Hazelcast_ClientConfig_create(char **errPtr) {
+    try {
+        Hazelcast_ClientConfig_t *clientConfig = new Hazelcast_ClientConfig_t();
+        clientConfig->config = new ClientConfig();
 
-    return clientConfig;
+        return clientConfig;
+    } catch(const std::runtime_error& re) {
+        saveMessageInErrPtr(errPtr, re.what());
+    } catch(const std::exception& ex) {
+        saveMessageInErrPtr(errPtr, ex.what());
+    } catch(...) {
+        saveUnknownErrorOccurredMessageInErrPtr(errPtr);
+    }
+
+    return NULL;
 }
 
 extern "C" void Hazelcast_ClientConfig_destroy(Hazelcast_ClientConfig_t *clientConfig) {
